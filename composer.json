@@ -20,7 +20,7 @@
     "minimum-stability": "dev",
     "require-dev": {
         "php": ">=5.4",
-        "symfony/symfony": "~2.3.0",
+        "symfony/symfony": "~2.3.0"
     },
     "extra": {
         "branch-alias": {
