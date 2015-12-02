@@ -1,0 +1,3 @@
+notificacion_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: NotificacionBundle:Default:index }
