@@ -1,1 +1,25 @@
-Hello {{ name }}!
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    <script src="{{ asset('bundles/sandbox/lib/node_modules/socket.io-client/socket.io.js') }}"></script>
+    <script>
+        var socket = io.connect('http://localhost:3000');
+        //socket.on('news', function (data) {
+        {% if securityInf != false %}
+        {#{{ dump(securityInf |json_encode() ) }}#}
+
+        socket.emit('newClient', {"security": {{ securityInf | json_encode|raw }} }  );
+//        socket.emit('newClient', {"security": {"data":{"user":"dacasals","userid":1,"email":"dacasals@uci.cu","roles":["ROLE_USUARIO"]},"token":"Cy4TLVo+MzI5blqblZ\/RUxLp8mhhB9WThoPUafLyqHxoy8m0cagJPGvsy\/B6tqYxMRiCmlMIWVMb+SVn8EScgIb8UGQGYTTvXMjinkXNtpWbHzkSXReStTWiUNwyj9OywLkkYl4F91OOrzd8PtI0E\/kEI4i7\/62v2CpGSVRqT\/M="} } ); // });
+        {% endif %}
+        // });
+    </script>
+</head>
+<body>
+{% block body %}{% endblock %}
+{% block javascripts %}{% endblock %}
+</body>
+</html>
