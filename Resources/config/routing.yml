@@ -6,3 +6,8 @@ notificacion_ajax:
     path:     /notificaciones/security-token
     defaults: { _controller: NotificacionBundle:Default:securityToken }
     methods: ["GET"]
+
+controlador_notifi_view:
+    resource: @NotificacionBundle/Controller/
+    type: annotation
+
