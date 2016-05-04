@@ -73,4 +73,9 @@ class NotificationService
 
         return $exit;
     }
+
+    public function modNotif($data){
+        die('asdasd');
+        print_r($data);die("\nFile:".__FILE__."\nLine:".__LINE__);
+    }
 }
