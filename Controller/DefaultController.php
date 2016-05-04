@@ -119,7 +119,7 @@ class DefaultController extends Controller
             $fecha = new Date('yyyy-mm-dd');
             $entity->setFecha($fecha);
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->
-            $entity->setAutor()
+           // $entity->setAutor()
 
             $this->getDoctrine()->getRepository('NotificacionBundle:TiempoReal')->createNotification($entity);
             /**
