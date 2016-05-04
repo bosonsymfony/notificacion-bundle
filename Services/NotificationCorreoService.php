@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Date: 10/03/16
  * Time: 9:56
  */
-class NotificationService
+class NotificationCorreoService
 {
     /**
      * @var ContainerInterface

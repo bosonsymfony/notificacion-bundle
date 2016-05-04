@@ -10,4 +10,7 @@ namespace UCI\Boson\NotificacionBundle\Entity;
  */
 class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function createNotification(){
+       // $
+    }
 }

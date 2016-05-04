@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: alainfd
- * Date: 3/05/16
- * Time: 14:10
- */
 
 namespace UCI\Boson\NotificacionBundle\Form;
 
@@ -12,29 +6,35 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
-
-class NotificacionType extends AbstractType
+class CorreoType extends AbstractType
 {
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('fecha', 'date')
-            ->add('tipo', 'integer')
-            ->add('titulo', 'string')
-            ->add('contenido', 'string')
-            ->add('autor', 'int');
+            ->add('adjunto')
+            ->add('user')
+        ;
     }
-
+    
+    /**
+     * @param OptionsResolverInterface $resolver
+     */
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class'=>'UCI\Boson\NotificacionBundle\Entity\Notificacion'
+            'data_class' => 'UCI\Boson\NotificacionBundle\Entity\Correo'
         ));
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
-        // TODO: Implement getName() method.
+        return 'uci_boson_notificacionbundle_correo';
     }
-
 }

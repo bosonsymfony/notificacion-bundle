@@ -20,7 +20,8 @@
 <body>
 {% block body %}{% endblock %}
 {% block javascripts %}
-    {{ dump(output) }}
+    {#{{ dump(output) }}#}
+    {{ form(form) }}
 {#<script>#}
     {#socket.on('notification', function (data) {#}
         {#alert(data);#}
