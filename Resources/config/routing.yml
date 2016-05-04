@@ -1,0 +1,8 @@
+notificacion_homepage:
+    path:     /notificaciones/{name}
+    defaults: { _controller: NotificacionBundle:Default:index }
+
+notificacion_ajax:
+    path:     /notificaciones/security-token
+    defaults: { _controller: NotificacionBundle:Default:securityToken }
+    methods: ["GET"]

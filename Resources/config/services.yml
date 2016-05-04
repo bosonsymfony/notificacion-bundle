@@ -1,0 +1,6 @@
+services:
+    notificacion.notification:
+        class: UCI\Boson\NotificacionBundle\Services\NotificationService
+        arguments: [@service_container]
+        # aqui se pasa el container temporalmente pero en la clase se debe definir como atributos los ser
+        #vicios reales a utilizar.
