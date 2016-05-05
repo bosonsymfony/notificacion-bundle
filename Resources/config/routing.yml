@@ -1,5 +1,5 @@
 notificacion_homepage:
-    path:     /notificaciones/{name}
+    path:     /notifyTest/{name}
     defaults: { _controller: NotificacionBundle:Default:index }
 
 notificacion_ajax:

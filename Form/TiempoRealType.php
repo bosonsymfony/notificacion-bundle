@@ -15,7 +15,7 @@ class TiempoRealType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('tipo', 'integer')
+            ->add('tipo')
             ->add('titulo', 'text')
             ->add('contenido', 'text')
             ->add('user',null,array(
@@ -23,6 +23,7 @@ class TiempoRealType extends AbstractType
                 'expanded'=>false,
                 'choices_as_values' => false,
             ))
+            ->add('submit','submit');
         ;
     }
     

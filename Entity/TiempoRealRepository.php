@@ -10,7 +10,14 @@ namespace UCI\Boson\NotificacionBundle\Entity;
  */
 class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function createNotification(){
-       // $
+    public function createNotification(TiempoReal $entity){
+        try
+        {$this->_em->persist($entity);
+        $this->_em->flush($entity);
+        return  $entity->getId();
+        }
+        catch(\Exception $ex){
+            return $ex->getMessage();
+        }
     }
 }

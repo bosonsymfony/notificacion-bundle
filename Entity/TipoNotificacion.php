@@ -92,4 +92,11 @@ class TipoNotificacion
     {
         return $this->notificacion;
     }
+
+    function __toString()
+    {
+        return $this->nombre;
+    }
+
+
 }

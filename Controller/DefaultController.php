@@ -4,10 +4,10 @@ namespace UCI\Boson\NotificacionBundle\Controller;
 
 use Doctrine\ORM\NoResultException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Client;
-use UCI\Boson\BackendBundle\Doctrine\ORM\Query\AST\Platform\Functions\Mysql\Date;
 use UCI\Boson\NotificacionBundle\Entity\Notificacion;
 use UCI\Boson\NotificacionBundle\Entity\TiempoReal;
 use UCI\Boson\NotificacionBundle\Form\NotificacionType;
@@ -18,14 +18,16 @@ class DefaultController extends Controller
     public function indexAction($name = "daniel")
     {
 
-        $fomV = $this->createForm(new TiempoRealType());
-        $fomV->add('submit','submit');
+        $fomV = $this->createForm(new TiempoRealType(),null, array(
+            'action' => $this->generateUrl('notificacion_add'),
+            'method' => 'POST',
+        ));
         return $this->render('NotificacionBundle:Default:index.html.twig', array('form' => $fomV->createView()));
 
         $securityInf = $this->container->get("notificacion.notification")->getUserSecurityInfo();
         $client = new Client();
         $body = array_merge(array('security_data' => $securityInf['data']),
-            array('notif_data' => array('user' => $name, 'mensaje' => 'Hola este es el mensaje')));
+            array('notif_data' => array('user' => $name, 'mensaje' => 'Hola este es el mensaje 2')));
 
         $resp = $client->post('http://10.58.10.152:3000/notification/' . $name,
             ['json' => $body,
@@ -38,12 +40,13 @@ class DefaultController extends Controller
         //$request->setBody(json_encode($body));
         //$resp = $client->send($request);
         $output = json_decode($resp->getBody()->getContents(), true);
+        return new Response("dadas");
         return $this->render('NotificacionBundle:Default:index.html.twig', array('securityInf' => $securityInf, 'output' => $output));
     }
 
     public function securityTokenAction()
     {
-        $securityInf = $this->container->get("notificacion.notification")->getUserSecurityInfo();
+        $securityInf = $this->get("notificacion.notification")->getUserSecurityInfo();
         return new Response(json_encode($securityInf));
     }
 
@@ -91,7 +94,7 @@ class DefaultController extends Controller
         catch(NoResultException $ex){
             return new Response(json_encode($this->get('translator')->trans('message.get404')), 404);
         }
-        print_r($notif['autor']);
+
         if($notif['autor'] === $secInfo['data']['userid'])
         {
             return new Response(json_encode(sprintf($this->get('translator')->trans('message.get403'),$idNotif), 403));
@@ -101,7 +104,6 @@ class DefaultController extends Controller
 
     public function addNotifAction(Request $request)
     {
-
         $entity = new TiempoReal();
         $parameters = $request->request->all();
         $formNot = new TiempoRealType();
@@ -116,25 +118,30 @@ class DefaultController extends Controller
         $form->handleRequest($request);
         if ($form->isValid()) {
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
-            $fecha = new Date('yyyy-mm-dd');
+            $fecha = new \DateTime();
             $entity->setFecha($fecha);
-            $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->
-           // $entity->setAutor()
+            $entity->setEstado(false);
+            $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
+            $entity->setAutor($autor);
 
-            $this->getDoctrine()->getRepository('NotificacionBundle:TiempoReal')->createNotification($entity);
-            /**
-             * llamada al servicio de notificación
-             */
-            $this->get('notificacion.tiemporeal')
-                ->notifyByUser(
-                    $parameters['tipo'],
-                    $parameters['titulo'],
-                    $parameters['contenido'],
-                    $parameters['user']
-                );
+            $resp = $this->getDoctrine()->getRepository('NotificacionBundle:TiempoReal')->createNotification($entity);
+            if($resp === true){
+                /**
+                 * llamada al servicio de notificación
+                 */
+                $this->get('notificacion.tiemporeal')
+                    ->notifyByUser(
+                        $parameters['titulo'],
+                        $parameters['contenido'],
+                        $entity->getUser()->getEmail()
+                    );
+            }
+
             return new Response('The Content was created successfully.');
         }
-
+        else{
+            return new Response($form->getErrorsAsString(4));
+        }
     }
 
     public function modNotifAction(Request $request, $idNotif)
