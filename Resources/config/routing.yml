@@ -1,5 +1,5 @@
 notificacion_homepage:
-    path:     /notifyTest/{name}
+    path:     /notificaciones
     defaults: { _controller: NotificacionBundle:Default:index }
 
 notificacion_ajax:
@@ -31,3 +31,8 @@ notificacion_del:
     path: /notificacion/{idNotif}
     defaults: {_controller: NotificacionBundle:Default:delNotif}
     methods: ["DELETE"]
+
+controlador_notifi_view:
+    resource: @NotificacionBundle/Controller/
+    type: annotation
+

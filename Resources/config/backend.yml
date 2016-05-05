@@ -1,0 +1,16 @@
+config_route: notificacion_app_config
+menu:
+    notificacion:
+        title: Notificacion
+        type: toggle
+        icon: 'mdi mdi-view-quilt'
+        includes: notificacion
+        children:
+            home:
+                title: 'Notificacion Homepage'
+                type: link
+                state: notificacion.homepage
+            notificacion:
+                title: Notificacion
+                type: link
+                state: notificacion.notificacion

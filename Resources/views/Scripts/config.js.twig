@@ -1,0 +1,94 @@
+/**
+ * Created by killer on 19/01/16.
+ */
+
+angular.module('app')
+        .run(
+                ['$rootScope',
+                    function ($rootScope) {
+
+                    }
+                ]
+        )
+        .config(
+                ['$stateProvider',
+                    function ($stateProvider) {
+
+                        //routes here
+                        $stateProvider
+                                .state('notificacion', {
+                                    abstract: true,
+                                    url: '/notificacion',
+                                    views: {
+                                        '': {
+                                            templateUrl: '{{ path('backend_layout')|raw }}'
+                                        },
+                                        'aside': {
+                                            templateUrl: '{{ path('backend_aside')|raw }}'
+                                        },
+                                        'content': {
+                                            templateUrl: '{{ path('backend_content')|raw }}'
+                                        }
+                                    }
+                                })
+.state('notificacion.notificacion', {
+url: '/notificacion',
+templateUrl: '{{ asset('bundles/notificacion/adminApp/views/Notificacion/list.html')|raw }}',
+controller: 'notificacionCtrl',
+data: {
+title: 'Notificacion'
+},
+resolve: load(
+[
+{
+files: [
+'{{ asset('bundles/notificacion/adminApp/controllers/Notificacion/notificacionCtrl.js')|raw }}',
+'{{ asset('bundles/notificacion/adminApp/services/Notificacion/notificacionSvc.js')|raw }}'
+]
+}
+]
+)
+})
+
+                                .state('notificacion.homepage', {
+                                    url: '/home',
+                                    templateUrl: '{{ asset('bundles/notificacion/adminApp/views/home.html')|raw }}',
+                                    controller: 'notificacionHomeCtrl',
+                                    data: {
+                                        title: 'Notificacion Homepage'
+                                    },
+                                    resolve: load(
+                                            [
+                                                {
+                                                    name: 'hljs',
+                                                    files: [
+                                                        '{{ asset('bundles/backend/lib/highlight/highlight.pack.js')|raw }}',
+                                                        '{{ asset('bundles/backend/lib/highlight/styles/androidstudio.css')|raw }}',
+                                                        '{{ asset('bundles/backend/node_modules/angular-highlightjs/build/angular-highlightjs.js')|raw }}'
+                                                    ]
+                                                },
+                                                {
+                                                    files: [
+                                                        '{{ asset('bundles/notificacion/adminApp/services/notificacionHomeSvc.js')|raw }}',
+                                                        '{{ asset('bundles/notificacion/adminApp/filters/notificacionHomeFilter.js')|raw }}',
+                                                        '{{ asset('bundles/notificacion/adminApp/directives/notificacionHomeDirective.js')|raw }}',
+                                                        '{{ asset('bundles/notificacion/adminApp/controllers/notificacionHomeCtrl.js')|raw }}'
+                                                    ]
+                                                }
+                                            ]
+                                    )
+                                });
+
+
+                        function load(src) {
+                            return {
+                                deps: ['$ocLazyLoad',
+                                    function ($ocLazyLoad) {
+                                        return $ocLazyLoad.load(src);
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+        );
