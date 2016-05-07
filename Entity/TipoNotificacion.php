@@ -24,7 +24,7 @@ class TipoNotificacion
     /**
      * @var string
      *
-     * @ORM\OneToOne(targetEntity = "Notificacion", mappedBy = "tipo")
+     * @ORM\OneToMany(targetEntity = "Notificacion", mappedBy = "tipo")
      */
     private $notificacion;
 
@@ -99,4 +99,35 @@ class TipoNotificacion
     }
 
 
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->notificacion = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add notificacion
+     *
+     * @param \UCI\Boson\NotificacionBundle\Entity\Notificacion $notificacion
+     *
+     * @return TipoNotificacion
+     */
+    public function addNotificacion(\UCI\Boson\NotificacionBundle\Entity\Notificacion $notificacion)
+    {
+        $this->notificacion[] = $notificacion;
+
+        return $this;
+    }
+
+    /**
+     * Remove notificacion
+     *
+     * @param \UCI\Boson\NotificacionBundle\Entity\Notificacion $notificacion
+     */
+    public function removeNotificacion(\UCI\Boson\NotificacionBundle\Entity\Notificacion $notificacion)
+    {
+        $this->notificacion->removeElement($notificacion);
+    }
 }

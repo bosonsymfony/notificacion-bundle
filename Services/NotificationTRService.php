@@ -36,8 +36,19 @@ class NotificationTRService
         $this->token = $container->get('security.token_storage');
     }
 
+    /**
+     * Notifica a un usuario
+     * @param $titulo
+     * @param string $contenido
+     * @param $user
+     * @return \GuzzleHttp\Message\FutureResponse|
+     * \GuzzleHttp\Message\ResponseInterface|
+     * \GuzzleHttp\Ring\Future\FutureInterface|
+     * null
+     */
     public function notifyByUser($titulo,$contenido ="",$user){
-        $url = $this->container->getParameter('notification');
+
+        $url = $this->container->getParameter('notification_url_server');
         $securityInf = $this->container->get("notificacion.notification")->getUserSecurityInfo();
         $client = new Client();
         $notif_data = array('user' => $user, 'mensaje' => $titulo);
@@ -56,6 +67,18 @@ class NotificationTRService
                     ]]
         );
         return $resp;
+    }
 
+    /**
+     * @param $titulo
+     * @param string $contenido
+     * @param array $users
+     * @return \GuzzleHttp\Message\FutureResponse|
+     * \GuzzleHttp\Message\ResponseInterface|
+     * \GuzzleHttp\Ring\Future\FutureInterface|
+     * null
+     */
+    public function notifyByUsers($titulo,$contenido ="",array $users){
+        return $this->notifyByUser($titulo,$contenido,$users);
     }
 }

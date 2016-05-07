@@ -30,7 +30,8 @@ class TiempoReal extends Notificacion
 
 
     /**
-     * @ORM\OneToOne(targetEntity="UCI\Boson\SeguridadBundle\Entity\Usuario")
+     * @ORM\ManyToOne(targetEntity="UCI\Boson\SeguridadBundle\Entity\Usuario")
+     *  @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
 
@@ -92,4 +93,17 @@ class TiempoReal extends Notificacion
     {
         return $this->user;
     }
+
+    /**
+     * Get users
+     *
+     * @return \UCI\Boson\SeguridadBundle\Entity\Usuario
+     */
+    public function getUsers()
+    {
+        return array($this->user);
+    }
+
+
+
 }

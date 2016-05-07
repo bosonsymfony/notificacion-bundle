@@ -14,3 +14,7 @@ menu:
                 title: Notificacion
                 type: link
                 state: notificacion.notificacion
+            tiemporeal:
+                title: TiempoReales
+                type: link
+                state: notificacion.tiemporeal

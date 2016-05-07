@@ -31,7 +31,26 @@ angular.module('app')
                                         }
                                     }
                                 })
-.state('notificacion.notificacion', {
+                                .state('notificacion.tiemporeal', {
+                                    url: '/tiemporeal',
+                                    templateUrl: '{{ asset('bundles/notificacion/adminApp/views/TiempoReal/list.html')|raw }}',
+                                    controller: 'tiempoRealCtrl',
+                                    data: {
+                                        title: 'TiempoReales'
+                                    },
+                                    resolve: load(
+                                            [
+                                                {
+                                                    files: [
+                                                        '{{ asset('bundles/notificacion/adminApp/controllers/TiempoReal/tiempoRealCtrl.js')|raw }}',
+                                                        '{{ asset('bundles/notificacion/adminApp/services/TiempoReal/tiempoRealSvc.js')|raw }}'
+                                                    ]
+                                                }
+                                            ]
+                                    )
+                                })
+
+                                .state('notificacion.notificacion', {
 url: '/notificacion',
 templateUrl: '{{ asset('bundles/notificacion/adminApp/views/Notificacion/list.html')|raw }}',
 controller: 'notificacionCtrl',

@@ -15,16 +15,15 @@ class TiempoRealType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('tipo')
             ->add('titulo', 'text')
             ->add('contenido', 'text')
-            ->add('user',null,array(
-                'multiple'=> false,
-                'expanded'=>false,
-                'choices_as_values' => false,
-            ))
-            ->add('submit','submit');
-        ;
+            ->add('users','entity',array(
+                'multiple'=> true,
+                'class'=>'UCI\Boson\SeguridadBundle\Entity\Usuario'
+            ))->add('roles','entity',array(
+                'multiple'=> true,
+                'class'=>'UCI\Boson\SeguridadBundle\Entity\Rol'
+            ));
     }
     
     /**
@@ -33,7 +32,7 @@ class TiempoRealType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'UCI\Boson\NotificacionBundle\Entity\TiempoReal'
+            'data_class' => 'UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal'
         ));
     }
 
@@ -42,6 +41,6 @@ class TiempoRealType extends AbstractType
      */
     public function getName()
     {
-        return 'uci_boson_notificacionbundle_tiemporeal';
+        return 'notificacionbundle_notificacion';
     }
 }

@@ -38,12 +38,17 @@ class NotificationService
     {
         $token = $this->token->getToken();
         $roles = array();
+
         foreach ($token->getRoles() as $roleObj) {
             $roles[] = $roleObj->getRole();
         }
         $user = $this->manager->getRepository("SeguridadBundle:Usuario")->findOneByUsername($token->getUsername());
         if($user == null){
             return false;
+        }
+        $rol = $user->getBosonRoles();
+        foreach ($rol as $item) {
+           $a =  $item;
         }
         $data = array('user' => $token->getUsername(),
             'userid' => $user->getId(),

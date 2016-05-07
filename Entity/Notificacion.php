@@ -34,7 +34,7 @@ class Notificacion
 
     /**
      *
-     * @ORM\OneToOne(targetEntity = "UCI\Boson\NotificacionBundle\Entity\TipoNotificacion", inversedBy = "notificacion")
+     * @ORM\ManyToOne(targetEntity = "UCI\Boson\NotificacionBundle\Entity\TipoNotificacion", inversedBy = "notificacion")
      */
     private $tipo;
 
