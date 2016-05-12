@@ -1,3 +1,4 @@
 message:
     get404: The notification resource was not founded with the specified id
     get403: The notification resource with the specified %s is forbidden
+    post401: Needs to authenticate first

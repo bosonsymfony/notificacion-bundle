@@ -136,8 +136,8 @@ angular.module('app')
         ]
     )
     .controller('tiempoRealCreateCtrl',
-        ['$scope', '$mdDialog', 'tiempoRealSvc',
-            function ($scope, $mdDialog, tiempoRealSvc) {
+        ['$scope', '$mdDialog', 'tiempoRealSvc','toastr',
+            function ($scope, $mdDialog, tiempoRealSvc,toastr) {
 
                 var update = false;
 
@@ -166,6 +166,9 @@ angular.module('app')
 
                 function error(errors) {
                     $scope.errors = errors.data;
+                    if(errors.status === 401){
+                        toastr.error(errors.data,'HOla',{timeOut:2500});
+                    }
                 }
 
                 function addEntity() {

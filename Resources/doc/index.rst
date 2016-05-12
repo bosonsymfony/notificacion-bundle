@@ -203,6 +203,13 @@ Componente: ExcepcionesBundle
 
 	El evento onKernelException es observado con el objetivo de escribir los logs de las excepciones ocurridas en el sistema. Ver implementación  de la clase ..\\ExcepcionesBundle\\EventListener.
 
+
+8. Otros detalles claves
+------------------------
+
+Aqui se debe esplicar que se utilizan los sertificados del sistema para el envio por lo que el sistema debe tener
+configurado el .cert del correo
+
 ---------------------------------------------
 
 :Versión: 1.0 17/7/2015

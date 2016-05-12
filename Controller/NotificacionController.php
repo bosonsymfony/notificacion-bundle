@@ -331,9 +331,55 @@ class NotificacionController extends BackendController
 
         }
 
+
+
         return $result;
     }
 
+    public function getUsersAction(Request $request)
+    {
+        $filter = $request->get('filter', null);
+        $limit = $request->get('limit', 5);
+        $page = $request->get('page', 1);
 
+
+        $qb = $this->get('doctrine.orm.entity_manager')->createQueryBuilder();
+        $qb->select('usuario.username, usuario.email,usuario.id')->from('SeguridadBundle:Usuario', 'usuario');
+        if ($page > 1) {
+            $qb->setFirstResult($page * $limit);
+        }
+        if ($filter) {
+            $qb->where("usuario.username LIKE '%$filter%'");
+        }
+        $qb->setMaxResults($limit);
+
+        $users = $qb->getQuery()->getArrayResult();
+        return new Response(json_encode($users), 200, array(
+            'content-type' => 'application/json'
+        ));
+    }
+
+    public function getRolesAction(Request $request)
+    {
+        $filter = $request->get('filter', null);
+        $limit = $request->get('limit', 5);
+        $page = $request->get('page', 1);
+
+
+        $qb = $this->get('doctrine.orm.entity_manager')->createQueryBuilder();
+        $qb->select('rol.nombre,rol.id')->from('SeguridadBundle:Rol', 'rol');
+        if ($page > 1) {
+            $qb->setFirstResult($page * $limit);
+        }
+        if ($filter) {
+            $qb->where("rol.nombre LIKE '%$filter%'");
+        }
+        $qb->setMaxResults($limit);
+
+        $roles = $qb->getQuery()->getArrayResult();
+        return new Response(json_encode($roles), 200, array(
+            'content-type' => 'application/json'
+        ));
+    }
 
 }

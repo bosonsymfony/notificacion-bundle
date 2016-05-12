@@ -15,9 +15,16 @@ class CorreoType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('adjunto')
-            ->add('user')
-        ;
+            ->add('titulo', 'text')
+            ->add('contenido', 'text')
+            ->add('adjunto','file')
+            ->add('users','entity',array(
+                'multiple'=> true,
+                'class'=>'UCI\Boson\SeguridadBundle\Entity\Usuario'
+            ))->add('roles','entity',array(
+                'multiple'=> true,
+                'class'=>'UCI\Boson\SeguridadBundle\Entity\Rol'
+            ));
     }
     
     /**
@@ -26,7 +33,7 @@ class CorreoType extends AbstractType
     public function setDefaultOptions(OptionsResolverInterface $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'UCI\Boson\NotificacionBundle\Entity\Correo'
+            'data_class' => 'UCI\Boson\NotificacionBundle\Form\Model\SendNotMail'
         ));
     }
 
@@ -35,6 +42,6 @@ class CorreoType extends AbstractType
      */
     public function getName()
     {
-        return 'uci_boson_notificacionbundle_correo';
+        return 'notificacionbundle_notificacionmail';
     }
 }

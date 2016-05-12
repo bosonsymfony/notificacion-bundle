@@ -37,14 +37,14 @@ controlador_notifi_view:
     type: annotation
 
 notification_users:
-    defaults: {_controller: NotificacionBundle:TiempoReal:getUsers}
+    defaults: {_controller: NotificacionBundle:Notificacion:getUsers}
     methods: ["GET"]
     path: /notification_users
     options:
             expose: true
 
 notification_roles:
-    defaults: {_controller: NotificacionBundle:TiempoReal:getRoles}
+    defaults: {_controller: NotificacionBundle:Notificacion:getRoles}
     methods: ["GET"]
     path: /notification_roles
     options:

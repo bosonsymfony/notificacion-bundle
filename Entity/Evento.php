@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Evento extends Notificacion
 {
-    /**p
+    /**
      * @var integer
      *
      * @ORM\Column(name="id", type="integer")

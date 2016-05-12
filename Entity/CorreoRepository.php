@@ -1,6 +1,8 @@
 <?php
 
 namespace UCI\Boson\NotificacionBundle\Entity;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
 
 /**
  * CorreoRepository
@@ -10,4 +12,69 @@ namespace UCI\Boson\NotificacionBundle\Entity;
  */
 class CorreoRepository extends \Doctrine\ORM\EntityRepository
 {
+
+    /**
+     * Persiste un conjunto de notificaciones dada la información que se obtiene del formulario
+     *
+     * @param SendNotTiempoReal $object
+     * @return array Retorna el listado de usuarios a los que se le registró una notificación.
+     */
+    public function persistFormNotification(SendNotMail $object){
+        try
+        {
+            $notified_users = array();
+            $users = $object->getUsers();
+            $roles = $object->getRoles();
+            foreach ($users as $user) {
+                $notified_users[] = $user->getEmail();
+            }
+            foreach ($roles as $role) {
+                $usersByRole = $role->getUsuarios();
+                foreach ($usersByRole as $item) {
+                    if(!in_array($item->getEmail(),$notified_users)){
+                        $users[] = $item;
+                        $notified_users[] = $item->getEmail();
+                    }
+                }
+            }
+            $entity = $this->createEntity($object->getTitulo(),$object->getContenido(),$object->getAutor(),$users,$object->getAdjunto());
+            $resp = $this->persistNotification($entity);
+            if(is_nan($resp) === true)
+                return $resp;
+            return $notified_users;
+        }
+        catch(\Exception $ex){
+            return $ex->getMessage();
+        }
+    }
+    public function persistNotification(Correo $entity){
+        try
+        {$this->_em->persist($entity);
+            $this->_em->flush($entity);
+            return  $entity->getId();
+        }
+        catch(\Exception $ex){
+            return $ex->getMessage();
+        }
+    }
+
+
+    private function createEntity($titulo,$contenido,$autor,$users,$adjunto){
+        $entity = new Correo();
+        $tipo =$this->_em->getRepository('NotificacionBundle:TipoNotificacion')->findOneByNombre('Correo');
+        $entity->setTitulo($titulo);
+        $entity->setTipo($tipo);
+        $entity->setContenido($contenido);
+        $entity->setAutor($autor);
+        foreach ($users as $user) {
+            $entity->addUser($user);
+        }
+        if($adjunto instanceof UploadedFile){
+            $entity->setAdjunto(true);
+        }else{
+            $entity->setAdjunto(false);
+        }
+        $entity->setFecha(new \DateTime());
+        return $entity;
+    }
 }

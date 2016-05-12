@@ -127,6 +127,7 @@ class TiempoRealController extends BackendController
             'content-type' => 'application/json'
         ));
     }
+
     /**
      * Creates a new TiempoReal entity.
      *
@@ -138,21 +139,23 @@ class TiempoRealController extends BackendController
         $entity = new SendNotTiempoReal();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
-
+        dump ($request->request->get('notificacionbundle_notificacion'));
         if ($form->isValid()) {
             $em = $this->get('doctrine.orm.default_entity_manager');
             /* obtengo el autor */
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
+            if (is_null($secInfo['data']['userid'])) {
+                return new Response($this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
+            }
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
-
             /*llamo al registro de notificaciones en el repositorio*/
             $arrayNotifUsers = $em->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
             /* notifico con el servicio */
-            if(count($arrayNotifUsers) === 1){
-                $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(),$entity->getContenido(),$arrayNotifUsers[0]);
-            }else{
-                $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(),$entity->getContenido(),$arrayNotifUsers);
+            if (count($arrayNotifUsers) === 1) {
+                $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
+            } else {
+                $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
             }
 
             return new Response('The TiempoReal was created successfully.');
@@ -189,11 +192,11 @@ class TiempoRealController extends BackendController
     public function newAction()
     {
         $entity = new TiempoReal();
-        $form   = $this->createCreateForm($entity);
+        $form = $this->createCreateForm($entity);
 
         return array(
             'entity' => $entity,
-            'form'   => $form->createView(),
+            'form' => $form->createView(),
         );
     }
 
@@ -215,17 +218,17 @@ class TiempoRealController extends BackendController
 
         return new Response($this->serialize($entity));
     }
-                                                                                                                                                                                                                      /**
-    * Creates a form to edit a TiempoReal entity.
-    *
-    * @param TiempoReal $entity The entity
-    *
-    * @return \Symfony\Component\Form\Form The form
-    */
+
+    /**
+     * Creates a form to edit a TiempoReal entity.
+     *
+     * @param TiempoReal $entity The entity
+     *
+     * @return \Symfony\Component\Form\Form The form
+     */
     private function createEditForm(TiempoReal $entity)
     {
-        $form = $this->get('form.factory')->createNamedBuilder('notificacionbundle_notificacion', 'form', $entity, array(
-            //'csrf_protection' => false
+        $form = $this->get('form.factory')->createNamedBuilder('notificacionbundle_notificacion', 'form', $entity, array(//'csrf_protection' => false
         ));
         foreach ($this->editFormFields as $index => $editFormField) {
             $form->add($editFormField);
@@ -372,50 +375,6 @@ class TiempoRealController extends BackendController
         return $result;
     }
 
-    public function getUsersAction(Request $request)
-    {
-        $filter = $request->get('filter', null);
-        $limit = $request->get('limit', 5);
-        $page = $request->get('page', 1);
 
-
-        $qb = $this->get('doctrine.orm.entity_manager')->createQueryBuilder();
-        $qb->select('usuario.username, usuario.email,usuario.id')->from('SeguridadBundle:Usuario','usuario');
-        if($page > 1){
-            $qb->setFirstResult($page*$limit);
-        }
-        if($filter){
-            $qb->where("usuario.username LIKE '%$filter%'");
-        }
-        $qb->setMaxResults($limit);
-
-        $users =  $qb->getQuery()->getArrayResult();
-        return new Response(json_encode($users), 200, array(
-            'content-type' => 'application/json'
-        ));
-    }
-
-    public function getRolesAction(Request $request)
-    {
-        $filter = $request->get('filter', null);
-        $limit = $request->get('limit', 5);
-        $page = $request->get('page', 1);
-
-
-        $qb = $this->get('doctrine.orm.entity_manager')->createQueryBuilder();
-        $qb->select('rol.nombre,rol.id')->from('SeguridadBundle:Rol','rol');
-        if($page > 1){
-            $qb->setFirstResult($page*$limit);
-        }
-        if($filter){
-            $qb->where("rol.nombre LIKE '%$filter%'");
-        }
-        $qb->setMaxResults($limit);
-
-        $roles =  $qb->getQuery()->getArrayResult();
-        return new Response(json_encode($roles), 200, array(
-            'content-type' => 'application/json'
-        ));
-    }
 
 }

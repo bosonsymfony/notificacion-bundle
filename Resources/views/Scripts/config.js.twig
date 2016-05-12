@@ -49,6 +49,31 @@ angular.module('app')
                                             ]
                                     )
                                 })
+                                .state('notificacion.correo', {
+                                    url: '/correo',
+                                    templateUrl: '{{ asset('bundles/notificacion/adminApp/views/Correo/list.html')|raw }}',
+                                    controller: 'correoCtrl',
+                                    data: {
+                                        title: 'Correos'
+                                    },
+                                    resolve: load(
+                                            [
+                                                {
+                                                    files: [
+                                                        '{{ asset('bundles/notificacion/adminApp/directives/notificacionHomeDirective.js')|raw }}',
+                                                        '{{ asset('bundles/notificacion/adminApp/controllers/Correo/correoCtrl.js')|raw }}',
+                                                        '{{ asset('bundles/notificacion/adminApp/services/Correo/correoSvc.js')|raw }}'
+                                                    ]
+                                                },
+                                                {   name: 'lfNgMdFileInput',
+                                                    files: [
+                                                        '{{ asset('bundles/notificacion/bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.css')|raw }}',
+                                                        '{{ asset('bundles/notificacion/bower_components/lf-ng-md-file-input/dist/lf-ng-md-file-input.js')|raw }}'
+                                                    ]
+                                                }
+                                            ]
+                                    )
+                                })
 
                                 .state('notificacion.notificacion', {
 url: '/notificacion',

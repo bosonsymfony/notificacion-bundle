@@ -22,6 +22,12 @@ class NotificacionExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
         $container->setParameter('notification_url_server',$config['url_server']);
+        if(array_key_exists('store_attachments',$config)){
+            $container->setParameter('notification_store_attachments',$config['store_attachments']);
+        }
+        else{
+            $container->setParameter('notification_store_attachments',false);
+        }
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
     }

@@ -18,3 +18,7 @@ menu:
                 title: TiempoReales
                 type: link
                 state: notificacion.tiemporeal
+            correo:
+                title: Correos
+                type: link
+                state: notificacion.correo
