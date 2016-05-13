@@ -1,4 +1,0 @@
-message:
-    get404: The recurso notificación con el id especificado no fué encontrado
-    get403: he recurso notificación con el  %s está prohibido
-    post401: Necesitas autenticarte primero
