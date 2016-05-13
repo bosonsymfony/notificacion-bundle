@@ -1,0 +1,19 @@
+{
+  "name": "angular-aria",
+  "version": "1.5.5",
+  "license": "MIT",
+  "main": "./angular-aria.js",
+  "ignore": [],
+  "dependencies": {
+    "angular": "1.5.5"
+  },
+  "_release": "1.5.5",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.5.5",
+    "commit": "14b2c85469a2656e8921cb9f58974ba530abb3c1"
+  },
+  "_source": "git://10.128.50.80:6789/angular-aria",
+  "_target": "^1.4.8",
+  "_originalSource": "angular-aria"
+}
