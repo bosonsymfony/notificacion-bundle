@@ -22,3 +22,7 @@ menu:
                 title: Correos
                 type: link
                 state: notificacion.correo
+            bandejaentrada:
+                title: BandejaEntradas
+                type: link
+                state: notificacion.bandejaentrada

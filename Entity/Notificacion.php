@@ -52,7 +52,12 @@ class Notificacion
      */
     private $contenido;
 
-
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
+     */
+    private $deleted_at;
     /**
      * @ORM\ManyToOne(targetEntity="UCI\Boson\SeguridadBundle\Entity\Usuario", inversedBy = "notificaciones")
      * @ORM\JoinColumn(name="autor_id", referencedColumnName="id")
@@ -189,5 +194,29 @@ class Notificacion
     public function getAutor()
     {
         return $this->autor;
+    }
+
+    /**
+     * Set deletedAt
+     *
+     * @param \DateTime $deletedAt
+     *
+     * @return Notificacion
+     */
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deleted_at = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * Get deletedAt
+     *
+     * @return \DateTime
+     */
+    public function getDeletedAt()
+    {
+        return $this->deleted_at;
     }
 }

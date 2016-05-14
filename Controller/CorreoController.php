@@ -165,8 +165,7 @@ class CorreoController extends BackendController
                     $resp = $this->get('notificacion.correo')->notifyByUser($entity->getTitulo(),
                         $entity->getContenido(), $arrayNotifUsers);
                 }
-                dump($resp);
-                return new Response('The Correo was created successfully.');
+                return new Response($resp.' se realizó correctamente la operación');
             }
             return new Response('No se realizó correctamente la operación');
         }

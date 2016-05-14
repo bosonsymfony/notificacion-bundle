@@ -44,17 +44,18 @@ class NotificationCorreoService
             $sender = $this->container->get('mailer');
             $mensaje = \Swift_Message:: newInstance()
                 ->setSubject($titulo )
-                ->setFrom("dacasals@uci.cu")
+                ->setFrom( $this->container->getParameter('mailer_user'))
                 ->setTo($usuarios)
                 ->setBody($contenido);
             if($adjunto)
                 $mensaje->attach(\Swift_Attachment::fromPath($adjunto->getRealPath()));
 
-            return $sender->send($mensaje);
+           return $sender->send($mensaje);
         }
         catch (\Exception $e)
         {
             $this->container->get('logger')->addCritical($e->getMessage());
+            return false;
         }
 
     }

@@ -74,6 +74,24 @@ angular.module('app')
                                             ]
                                     )
                                 })
+                                .state('notificacion.bandejaentrada', {
+                                    url: '/bandejaentrada',
+                                    templateUrl: '{{ asset('bundles/notificacion/adminApp/views/BandejaEntrada/list.html')|raw }}',
+                                    controller: 'bandejaEntradaCtrl',
+                                    data: {
+                                        title: 'BandejaEntradas'
+                                    },
+                                    resolve: load(
+                                            [
+                                                {
+                                                    files: [
+                                                        '{{ asset('bundles/notificacion/adminApp/controllers/BandejaEntrada/bandejaEntradaCtrl.js')|raw }}',
+                                                        '{{ asset('bundles/notificacion/adminApp/services/BandejaEntrada/bandejaEntradaSvc.js')|raw }}'
+                                                    ]
+                                                }
+                                            ]
+                                    )
+                                })
 
                                 .state('notificacion.notificacion', {
 url: '/notificacion',
