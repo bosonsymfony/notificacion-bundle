@@ -4,6 +4,7 @@ namespace UCI\Boson\NotificacionBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+
 /**
  * TiempoReal
  *
