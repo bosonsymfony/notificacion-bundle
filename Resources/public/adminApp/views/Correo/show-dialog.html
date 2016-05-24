@@ -15,33 +15,42 @@
             <div layout-gt-sm="row">
                 <div flex-gt-sm>
                     <label class="required">Fecha</label>
+
                     <div>
-                        <p ng-bind="entity['notificacionbundle_bandejaentrada[fecha]']"></p>
-                        <!--<input type="text" data-ng-model="entity['notificacionbundle_bandejaentrada[fecha]']" disabled aria-disabled="true">-->
+                        <p ng-bind="entity['notificacionbundle_notificacionmail[fecha]']"></p>
                     </div>
                 </div>
                 <div flex-gt-sm>
                     <label class="required">Autor</label>
+
                     <div>
-                        <p ng-bind="entity['notificacionbundle_bandejaentrada[autor]']">
+                        <p ng-bind="entity['notificacionbundle_notificacionmail[autor]']">
                     </div>
                 </div>
                 <div class="md-block" flex-gt-sm>
                     <label class="required">Titulo</label>
 
-                    <p ng-bind="entity['notificacionbundle_bandejaentrada[titulo]']"></p>
+                    <p ng-bind="entity['notificacionbundle_notificacionmail[titulo]']"></p>
                 </div>
             </div>
             <div layout-gt-sm="row">
                 <div class="md-block" flex-gt-sm>
                     <label class="required">Contenido</label>
 
-                    <p ng-bind="entity['notificacionbundle_bandejaentrada[contenido]']"></p>
+                    <p ng-bind="entity['notificacionbundle_notificacionmail[contenido]']"></p>
                 </div>
             </div>
+            <md-chips class="custom-chips" ng-model="entity['notificacionbundle_notificacionmail[users]']" readonly=true>
+                <md-chip-template>
+                    <span>
+                      <strong>{{$chip.username}}</strong>
+                      <em>({{$chip.email}})</em>
+                    </span>
+                </md-chip-template>
+            </md-chips>
         </div>
         <div class="md-actions">
-            <md-button class="md-primary md-raised" ng-click="accept()">Cerrar
+            <md-button class="md-primary md-raised" ng-click="cancel()">Cerrar
             </md-button>
         </div>
     </md-dialog-content>

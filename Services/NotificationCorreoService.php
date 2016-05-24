@@ -4,6 +4,7 @@ namespace UCI\Boson\NotificacionBundle\Services;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
 
 /**
  * Created by PhpStorm.
@@ -22,7 +23,13 @@ class NotificationCorreoService
      */
     private $manager;
 
+    /**
+     * @var \Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage
+     */
     private $token;
+    /**
+     * @var
+     */
     private $store_attachements;
     /**
      * NotificationService constructor.
@@ -36,8 +43,38 @@ class NotificationCorreoService
         $this->store_attachements = $store_attachments;
     }
 
-
-    public function notifyByUser($titulo,$contenido,$usuarios,UploadedFile $adjunto= null){
+    /**
+     * Crea y lanza una o notificación para un conjunto de roles o usuarios.
+     * @param SendNotMail $entity
+     * @return bool
+     */
+    public function sendNotification(SendNotMail $entity){
+        /*llamo al registro de notificaciones en el repositorio*/
+        $ResponsePersist = $this->manager->getRepository('NotificacionBundle:Correo')->persistFormNotification($entity);
+        $arrayNotifUsers = $ResponsePersist['users'];
+        if (count($arrayNotifUsers) > 0) {
+            if ($entity->getAdjunto() instanceof UploadedFile) {
+                $resp = $this->notifyByUser($entity->getTitulo(),
+                    $entity->getContenido(), $arrayNotifUsers, $entity->getAdjunto());
+                $this->storeAdjunto($entity->getAdjunto(),$ResponsePersist['id']);
+            } else {
+                $resp = $this->notifyByUser($entity->getTitulo(),
+                $entity->getContenido(), $arrayNotifUsers);
+            }
+            return $resp ;
+        }
+        else{
+            return false;
+        }
+    }
+    /**
+     * @param $titulo
+     * @param $contenido
+     * @param $usuarios
+     * @param UploadedFile|null $adjunto
+     * @return bool|int
+     */
+    public function notifyByUser($titulo, $contenido, $usuarios, UploadedFile $adjunto= null){
 
         //Aqui notificamos
         try{
@@ -57,15 +94,42 @@ class NotificationCorreoService
             $this->container->get('logger')->addCritical($e->getMessage());
             return false;
         }
-
     }
 
-    public function storeAdjunto(UploadedFile $file, $url = null){
-        if(!$url)
-            $url = $this->store_attachements;
-        if(is_dir($url)){
-            $file->move($url);
-            return true;
+    /**
+     * Almacena en el servidor el
+     * @param UploadedFile $file
+     * @param null $id
+     * @return bool
+     */
+    public function storeAdjunto(UploadedFile $file, $id){
+        $url = $this->container->getParameter('notification_store_attachments');
+        if($url){
+            $zip = new \ZipArchive();
+            $archive = $url.DIRECTORY_SEPARATOR.$id;
+            $zip->open($archive, \ZipArchive::CREATE);
+            $zip->addFromString($file->getClientOriginalName().".".$file->getClientOriginalExtension(), file_get_contents($file->getRealPath()));
+            $zip->close();
+        }
+    }
+
+    /**
+     * Obtiene la url del adjunto
+     * @param $id
+     * @return bool|string
+     */
+    public function getNombreAdjunto($id){
+        $url = $this->container->getParameter('notification_store_attachments');
+        if($url){
+            $zip = new \ZipArchive();
+            $archive = $url.DIRECTORY_SEPARATOR.$id;
+            $resp = $zip->open($archive);
+            if($resp === true){
+                $stat = $zip->statIndex(0);
+                $zip->close();
+                return basename(basename( $stat['name'] ));
+            }
+
         }
         return false;
     }

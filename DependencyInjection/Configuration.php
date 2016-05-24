@@ -23,7 +23,7 @@ class Configuration implements ConfigurationInterface
         $rootNode->children()
 //            Responde al RF 99 Configurar línea temática
             ->scalarNode('url_server')->isRequired()->cannotBeEmpty()->end()
-            ->scalarNode('store_attachments')   ->cannotBeEmpty()->end()
+            ->scalarNode('store_attachments')->cannotBeEmpty()->end()
 //            Responde al RF 100 Configurar framework de la capa de presentación
             ->end();
         // Here you should define the parameters that are allowed to

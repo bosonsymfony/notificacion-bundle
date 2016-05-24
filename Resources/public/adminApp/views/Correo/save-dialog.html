@@ -34,7 +34,6 @@
                     <textarea name="notificacionbundle_notificacionmail[contenido]"
                               ng-model="entity['notificacionbundle_notificacionmail[contenido]']"
                               required="required"></textarea>
-
                     <div ng-messages="errors.contenido">
                         <div ng-repeat="message in errors.contenido" ng-bind="message"></div>
                     </div>
@@ -53,6 +52,7 @@
                                 md-items="item in queryUserSearch(searchUserText)"
                                 md-min-length="2"
                                 md-item-text="item.username"
+                                md-delay="500"
                                 placeholder="Usuarios">
                             <span md-highlight-text="searchUserText">{{item.username}}</span>
                         </md-autocomplete>
@@ -79,6 +79,7 @@
                                 md-items="item in queryRoleSearch(searchRoleText)"
                                 md-min-length="2"
                                 md-item-text="item.nombre"
+                                md-delay="500"
                                 placeholder="Roles">
                             <span md-highlight-text="searchRoleText">{{item.nombre}}</span>
                         </md-autocomplete>

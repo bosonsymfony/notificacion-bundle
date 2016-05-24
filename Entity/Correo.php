@@ -13,14 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Correo extends Notificacion
 {
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
 
     /**
      * @var boolean
@@ -35,16 +27,6 @@ class Correo extends Notificacion
      */
     private $user;
 
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Set adjunto
@@ -109,5 +91,11 @@ class Correo extends Notificacion
     public function getUser()
     {
         return $this->user;
+    }
+
+
+    public function getId()
+    {
+        return parent::getId();
     }
 }

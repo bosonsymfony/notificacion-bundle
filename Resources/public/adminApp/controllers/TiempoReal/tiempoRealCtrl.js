@@ -106,6 +106,24 @@ angular.module('app')
                         }
                     );
                 }
+                $scope.showEntity = function (event) {
+                    tiempoRealSvc.entities.query({id: $scope.selected[0].id},
+                        function (response) {
+                            $mdDialog.show({
+                                clickOutsideToClose: true,
+                                controller: 'tiempoRealShowCtrl',
+                                focusOnOpen: false,
+                                targetEvent: event,
+                                templateUrl: $scope.$urlAssets + 'bundles/notificacion/adminApp/views/TiempoReal/show-dialog.html',
+                                locals: {
+                                    object: response
+                                }
+                            }).then(getEntities);
+                        }, function (error) {
+                            alert(error);
+                        }
+                    );
+                }
             }
         ]
     )
@@ -136,8 +154,8 @@ angular.module('app')
         ]
     )
     .controller('tiempoRealCreateCtrl',
-        ['$scope', '$mdDialog', 'tiempoRealSvc','toastr',
-            function ($scope, $mdDialog, tiempoRealSvc,toastr) {
+        ['$scope', '$mdDialog', 'tiempoRealSvc', 'toastr',
+            function ($scope, $mdDialog, tiempoRealSvc, toastr) {
 
                 var update = false;
 
@@ -166,19 +184,19 @@ angular.module('app')
 
                 function error(errors) {
                     $scope.errors = errors.data;
-                    if(errors.status === 401){
-                        toastr.error(errors.data,'HOla',{timeOut:2500});
+                    if (errors.status === 401) {
+                        toastr.error(errors.data, 'HOla', {timeOut: 2500});
                     }
                 }
 
                 function addEntity() {
 
                     if ($scope.form.$valid) {
-                        $scope.entity['notificacionbundle_notificacion[users]'] = $scope.selectedUsers.map(function(user){
+                        $scope.entity['notificacionbundle_notificacion[users]'] = $scope.selectedUsers.map(function (user) {
                             return user.id;
                         });
                         $scope.entity['notificacionbundle_notificacion[roles]'] = $scope.selectedRoles.map(function (role) {
-                            return  role.id;
+                            return role.id;
                         });
                         tiempoRealSvc.entities.save($scope.entity, success, error);
                     }
@@ -219,24 +237,22 @@ angular.module('app')
                         return chip;
                     }
                     // Otherwise, create a new one
-                    return { name: chip, type: 'new' }
+                    return {name: chip, type: 'new'}
                 }
+
                 /**
                  * Search for users.
                  */
-                function queryUserSearch (query) {
-                    var users = [];
-                    tiempoRealSvc.users(query)
-                        .success(function (data) {
-                            $scope.users = data.map(function (user) {
+                function queryUserSearch(query) {
+                    return tiempoRealSvc.users(query)
+                        .then(function (data) {
+                            return data.data.map(function (user) {
                                 user._lowerusername = user.username.toLowerCase();
                                 user.email = user.email.toLowerCase();
                                 user._lowerid = user.id;
                                 return user;
                             });
-                        }).error(function () {
-                    });
-                    return $scope.users;
+                        });
                 }
 
                 /**
@@ -266,34 +282,26 @@ angular.module('app')
                         return chip;
                     }
                     // Otherwise, create a new one
-                    return { name: chip, type: 'new' }
+                    return {name: chip, type: 'new'}
                 }
+
                 /**
                  * Search for roles.
                  */
-                function queryRoleSearch (query) {
-                    var roles = [];
-                    tiempoRealSvc.roles(query)
-                        .success(function (data) {
-                            console.log(data)
-                            $scope.roles = data.map(function (role) {
+                function queryRoleSearch(query) {
+                    return tiempoRealSvc.roles(query)
+                        .then(function (data) {
+                            return data.data.map(function (role) {
                                 role._lowernombre = role.nombre.toLowerCase();
                                 role._lowerid = role.id;
                                 return role;
                             });
-                        }).error(function () {
-                        console.log("dadadsads");
-                    });
-                    return $scope.roles;
+                        });
                 }
 
                 /**
                  * choice dialog
                  */
-
-
-
-
 
 
             }
@@ -326,7 +334,7 @@ angular.module('app')
 
                 function updateEntity() {
                     if ($scope.form.$valid) {
-                        tiempoRealSvc.entities.save({id: object.id}, angular.extend({}, $scope.entity, {_method: 'PUT'}), success, error);
+                        tiempoRealSvc.update.save({id: object.id}, angular.extend({}, $scope.entity, {_method: 'PUT'}), success, error);
                     }
                 }
 
@@ -335,4 +343,19 @@ angular.module('app')
                 };
             }
         ]
-    );
+    ).controller('tiempoRealShowCtrl',
+    ['$scope', '$mdDialog', 'object',
+        function ($scope, $mdDialog, object) {
+            $scope.entity = {
+                'notificacionbundle_notificacion[fecha]': object.fecha,
+                'notificacionbundle_notificacion[titulo]': object.titulo,
+                'notificacionbundle_notificacion[contenido]': object.contenido,
+                'notificacionbundle_notificacion[autor]': object.autor.username,
+                'notificacionbundle_notificacion[users]': [{username: object.user.username, email: object.user.email}]
+            };
+            $scope.cancel = function () {
+                return $mdDialog.cancel();
+            };
+        }
+    ]
+);

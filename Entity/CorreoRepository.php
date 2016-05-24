@@ -1,6 +1,7 @@
 <?php
 
 namespace UCI\Boson\NotificacionBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
 
@@ -22,31 +23,39 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
     public function persistFormNotification(SendNotMail $object){
         try
         {
-            $notified_users = array();
-            $users = $object->getUsers();
-            $roles = $object->getRoles();
-            foreach ($users as $user) {
-                $notified_users[] = $user->getEmail();
-            }
-            foreach ($roles as $role) {
-                $usersByRole = $role->getUsuarios();
-                foreach ($usersByRole as $item) {
-                    if(!in_array($item->getEmail(),$notified_users)){
-                        $users[] = $item;
-                        $notified_users[] = $item->getEmail();
-                    }
-                }
-            }
-            $entity = $this->createEntity($object->getTitulo(),$object->getContenido(),$object->getAutor(),$users,$object->getAdjunto());
+            $notified_users = $this->getListUsersToNotify($object);
+            $entity = $this->createEntity($object->getTitulo(),$object->getContenido(),$object->getAutor(),$object->getUsers(),$object->getAdjunto());
             $resp = $this->persistNotification($entity);
             if(is_nan($resp) === true)
                 return $resp;
-            return $notified_users;
+            return array('users'=>$notified_users['email'], 'id'=>$resp);
         }
         catch(\Exception $ex){
             return $ex->getMessage();
         }
     }
+    public function getListUsersToNotify(SendNotMail $object){
+        $notified_users = array('id'=>array(),'email'=>array());
+        $users = $object->getUsers();
+        $roles = $object->getRoles();
+        foreach ($users as $user) {
+            $notified_users['email'][] = $user->getEmail();
+            $notified_users['id'][] = $user->getId();
+        }
+        foreach ($roles as $role) {
+            $usersByRole = $role->getUsuarios();
+            foreach ($usersByRole as $item) {
+                if(!in_array($item->getEmail(),$notified_users['email'])){
+                    $users[] = $item;
+                    $notified_users['email'][] = $item->getEmail();
+                    $notified_users['id'][] = $item->getId();
+                }
+            }
+        }
+        return $notified_users;
+    }
+
+
     public function persistNotification(Correo $entity){
         try
         {$this->_em->persist($entity);
@@ -57,7 +66,18 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
             return $ex->getMessage();
         }
     }
-
+    public function updateEntity($titulo,$contenido,ArrayCollection $users,$adjunto,Correo $entity){
+        $entity->setTitulo($titulo);
+        $entity->setContenido($contenido);
+        $new  = new ArrayCollection(array_merge($entity->getUser()->toArray(),$users->toArray()));
+        if($adjunto instanceof UploadedFile){
+            $entity->setAdjunto(true);
+        }else{
+            $entity->setAdjunto(false);
+        }
+        $entity->setFecha(new \DateTime());
+        return $entity;
+    }
 
     private function createEntity($titulo,$contenido,$autor,$users,$adjunto){
         $entity = new Correo();
@@ -76,5 +96,15 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
         }
         $entity->setFecha(new \DateTime());
         return $entity;
+    }
+
+    public function findClear($id)
+    {
+         $qb = $this->_em->createQueryBuilder();
+        $qb->select('correo')
+            ->from('NotificacionBundle:Correo','correo')
+            ->where('correo.id = :identifier')
+            ->setParameter('identifier',$id);
+        return $entity = $qb->getQuery()->getOneOrNullResult();
     }
 }

@@ -40,12 +40,18 @@
         <div class="md-toolbar-tools">
             <div>{{selected.length}} {{selected.length > 1 ? 'elementos' : 'elemento'}} seleccionado(s)</div>
             <span flex=""></span>
-            <md-button class="md-icon-button" ng-show="selected.length == 1" ng-click="editEntity()">
+            <md-button class="md-icon-button" ng-show="selected.length == 1" ng-click="showEntity()">
                 <md-tooltip>
-                    Modificar
+                    Mostrar detalles
                 </md-tooltip>
-                <i class="mdi mdi-pencil i-24"></i>
+                <i class="mdi mdi-eye i-24"></i>
             </md-button>
+            <!--<md-button class="md-icon-button" ng-show="selected.length == 1" ng-click="editEntity()">-->
+                <!--<md-tooltip>-->
+                    <!--Modificar-->
+                <!--</md-tooltip>-->
+                <!--<i class="mdi mdi-pencil i-24"></i>-->
+            <!--</md-button>-->
             <md-button class="md-icon-button" ng-click="deleteSelected()">
                 <md-tooltip>
                     Eliminar

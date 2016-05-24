@@ -5,6 +5,7 @@ namespace UCI\Boson\NotificacionBundle\Services;
 use GuzzleHttp\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use UCI\Boson\NotificacionBundle\Entity\TiempoReal;
+use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
 
 /**
  * Created by PhpStorm.
@@ -36,6 +37,18 @@ class NotificationTRService
         $this->token = $container->get('security.token_storage');
     }
 
+    public function sendNotification(SendNotTiempoReal $entity)
+    {
+        $arrayNotifUsers = $this->manager->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
+        /* notifico con el servicio */
+        if (count($arrayNotifUsers) === 0)
+            return false;
+        else if (count($arrayNotifUsers) === 1)
+            return $this->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
+        else
+            return $this->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
+    }
+
     /**
      * Notifica a un usuario
      * @param $titulo
@@ -46,17 +59,18 @@ class NotificationTRService
      * \GuzzleHttp\Ring\Future\FutureInterface|
      * null
      */
-    public function notifyByUser($titulo,$contenido ="",$user){
+    public function notifyByUser($titulo, $contenido = "", $user)
+    {
 
         $url = $this->container->getParameter('notification_url_server');
         $securityInf = $this->container->get("notificacion.notification")->getUserSecurityInfo();
         $client = new Client();
         $notif_data = array('user' => $user, 'mensaje' => $titulo);
-        if($contenido !== ""){
-            $notif_data['mensaje'] = $notif_data['mensaje']."\n".$contenido;
+        if ($contenido !== "") {
+            $notif_data['mensaje'] = $notif_data['mensaje'] . "\n" . $contenido;
         }
         $body = array_merge(array('security_data' => $securityInf['data']),
-            array('notif_data' => $notif_data ));
+            array('notif_data' => $notif_data));
 
         $resp = $client->post($url,
             ['json' => $body,
@@ -78,7 +92,8 @@ class NotificationTRService
      * \GuzzleHttp\Ring\Future\FutureInterface|
      * null
      */
-    public function notifyByUsers($titulo,$contenido ="",array $users){
-        return $this->notifyByUser($titulo,$contenido,$users);
+    public function notifyByUsers($titulo, $contenido = "", array $users)
+    {
+        return $this->notifyByUser($titulo, $contenido, $users);
     }
 }

@@ -20,10 +20,12 @@ class CorreoType extends AbstractType
             ->add('adjunto','file')
             ->add('users','entity',array(
                 'multiple'=> true,
+                'required'=> false,
                 'class'=>'UCI\Boson\SeguridadBundle\Entity\Usuario'
             ))->add('roles','entity',array(
                 'multiple'=> true,
-                'class'=>'UCI\Boson\SeguridadBundle\Entity\Rol'
+                'required'=> false,
+                'class'=>'UCI\Boson\SeguridadBundle\Entity\Rol',
             ));
     }
     

@@ -11,20 +11,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SendNotMail
 {
 
-    /**
-     * @Assert\NotNull()
-     */
+
     private $roles;
 
-
-    /**
-     * @Assert\NotBlank()
-     * @Assert\NotNull()
-     */
     private $users;
 
 
     private $autor;
+
     /**
      * @Assert\NotBlank()
      * @Assert\NotNull()

@@ -14,15 +14,6 @@ use Doctrine\ORM\Mapping as ORM;
 class Evento extends Notificacion
 {
     /**
-     * @var integer
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
-
-    /**
      * @var string
      *
      * @ORM\Column(name="nombre", type="string", length=255)
@@ -30,15 +21,6 @@ class Evento extends Notificacion
     private $nombre;
 
 
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * Set nombre

@@ -139,7 +139,6 @@ class TiempoRealController extends BackendController
         $entity = new SendNotTiempoReal();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
-        dump ($request->request->get('notificacionbundle_notificacion'));
         if ($form->isValid()) {
             $em = $this->get('doctrine.orm.default_entity_manager');
             /* obtengo el autor */
@@ -359,22 +358,17 @@ class TiempoRealController extends BackendController
             'select' => array(),
             'join' => array()
         );
-
         foreach ($associations as $index => $association) {
             $select = 'partial ' . $index . '.{' . implode(', ', $association['fields']) . '}';
             $result['select'][] = $select;
             $join = $parent . '.' . $index;
             $result['join'][$index] = $join;
-
             if (array_key_exists('associations', $association)) {
                 $result = array_merge_recursive($result, $this->generateSelect($association['associations'], $index));
             }
-
         }
-
         return $result;
     }
-
 
 
 }

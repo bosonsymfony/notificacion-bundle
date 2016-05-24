@@ -2,6 +2,7 @@
 
 namespace UCI\Boson\NotificacionBundle\Controller;
 
+use Doctrine\DBAL\Query\QueryBuilder;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template; //Debe quitarse
 use Symfony\Component\HttpFoundation\Response;
 use UCI\Boson\BackendBundle\Controller\BackendController;
 use UCI\Boson\NotificacionBundle\Entity\Correo;
+use UCI\Boson\NotificacionBundle\Form\CorreoEntityType;
 use UCI\Boson\NotificacionBundle\Form\CorreoType;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
@@ -99,20 +101,6 @@ class CorreoController extends BackendController
         'adjunto' => 'boolean',
     );
 
-    private $newFormFields = array(
-        'fecha',
-        'titulo',
-        'contenido',
-        'adjunto',
-    );
-
-    private $editFormFields = array(
-        'fecha',
-        'titulo',
-        'contenido',
-        'adjunto',
-    );
-
     private $defaultMaxResults = array(5, 10, 15);
 
 
@@ -145,32 +133,18 @@ class CorreoController extends BackendController
         $entity = new SendNotMail();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
-
-
         if ($form->isValid()) {
-            $em = $this->get('doctrine.orm.entity_manager');
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
             if (is_null($secInfo['data']['userid'])) {
                 return new Response($this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
             }
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
-
-            /*llamo al registro de notificaciones en el repositorio*/
-            $arrayNotifUsers = $em->getRepository('NotificacionBundle:Correo')->persistFormNotification($entity);
-            if (count($arrayNotifUsers) > 0) {
-                if ($entity->getAdjunto() instanceof UploadedFile) {
-                    $resp = $this->get('notificacion.correo')->notifyByUser($entity->getTitulo(),
-                        $entity->getContenido(), $arrayNotifUsers, $entity->getAdjunto());
-                } else {
-                    $resp = $this->get('notificacion.correo')->notifyByUser($entity->getTitulo(),
-                        $entity->getContenido(), $arrayNotifUsers);
-                }
-                return new Response($resp.' se realizó correctamente la operación');
-            }
-            return new Response('No se realizó correctamente la operación');
+            $resp = $this->get('notificacion.correo')->sendNotification($entity);
+            if ($resp)
+                return new Response(' Se realizó correctamente la operación.' . $resp);
+            return new Response('No se realizó correctamente la operación', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
         $errors = $this->getAllErrorsMessages($form);
         return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
     }
@@ -218,64 +192,77 @@ class CorreoController extends BackendController
     public function showAction($id)
     {
         $em = $this->get('doctrine.orm.entity_manager');
+        $qb = $em->createQueryBuilder();
+        $qb->select('partial correo.{id,fecha,titulo,contenido,adjunto,autor},partial user.{username,id,email},partial autor.{username,id,email}')->from('NotificacionBundle:Correo', 'correo')->where('correo.id = :identifier')
+            ->leftjoin('correo.user', 'user')
+            ->leftjoin('correo.autor', 'autor')
+            ->setParameter('identifier', $id);
 
-        $entity = $em->getRepository('NotificacionBundle:Correo')->find($id);
-
+        $query = $qb->getQuery();
+        $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
+        $query->setHydrationMode(Query::HYDRATE_ARRAY);
+        $entity = $query->getOneOrNullResult();
         if (!$entity) {
             return new Response('Unable to find Correo entity.', Response::HTTP_NOT_FOUND);
         }
-
-        return new Response($this->serialize($entity));
+        if ($entity['adjunto'] === true) {
+            $entity['adjunto'] = $this->get('notificacion.correo')->getNombreAdjunto($id);
+        }
+        return new Response(json_encode($entity));
     }
 
-    /**
-     * Creates a form to edit a Correo entity.
-     *
-     * @param Correo $entity The entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createEditForm(Correo $entity)
-    {
-        $form = $this->get('form.factory')->createNamedBuilder('notificacionbundle_notificacionmail', 'form', $entity, array(//'csrf_protection' => false
-        ));
-        foreach ($this->editFormFields as $index => $editFormField) {
-            $form->add($editFormField);
-        }
+//    /**
+//     * Creates a form to edit a Correo entity.
+//     *
+//     * @param $model SendNotMail Form customized to the view
+//     * @return \Symfony\Component\Form\Form The form
+//     */
+//    private function createEditForm(SendNotMail $model)
+//    {
+//        $formMail = new CorreoType();
+//        $form = $this->createForm($formMail, $model, array(
+//            'method' => 'PUT',
+//        ));
+//        return $form;
+//    }
 
-        $form->setMethod('PUT');
-
-        return $form->getForm();
-    }
-
-    /**
-     * Edits an existing Correo entity.
-     *
-     * @Route("/{id}", name="notificacionmail_update", options={"expose"=true})
-     * @Method("PUT")
-     */
-    public function updateAction(Request $request, $id)
-    {
-        $em = $this->get('doctrine.orm.entity_manager');
-
-        $entity = $em->getRepository('NotificacionBundle:Correo')->find($id);
-
-        if (!$entity) {
-            return new Response('Unable to find Correo entity.', Response::HTTP_NOT_FOUND);
-        }
-
-        $editForm = $this->createEditForm($entity);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isValid()) {
-            $em->flush();
-
-            return new Response('The Usuario was updated successfully.');
-        }
-
-        $errors = $this->getAllErrorsMessages($editForm);
-        return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
+//    /**
+//     * Edits an existing Correo entity.
+//     *
+//     * @Route("/{id}", name="notificacionmail_update", options={"expose"=true})
+//     * @Method("PUT")
+//     */
+//    public function updateAction(Request $request, $id)
+//    {
+//        $em = $this->get('doctrine.orm.entity_manager');
+//
+//        $entity = $em->getRepository('NotificacionBundle:Correo')->findClear($id);
+//        if (!$entity) {
+//            return new Response('Unable to find Correo entity.', Response::HTTP_NOT_FOUND);
+//        }
+//        $sendMail = new SendNotMail();
+//        $editForm = $this->createEditForm($sendMail);
+//        $editForm->handleRequest($request);
+//
+//        if ($editForm->isValid()) {
+//            $users = $em->getRepository('NotificacionBundle:Correo')->getListUsersToNotify($sendMail);
+//            $paramsReq = $request->request->get('notificacionbundle_notificacionmail');
+//            unset($paramsReq['users']);
+//            unset($paramsReq['roles']);
+//            $paramsReq['user'] = $users;
+//
+//            $request->request->set('notificacionbundle_notificacionmail',$paramsReq);
+//            $formEntityMail = new CorreoEntityType();
+//            $formEntity = $this->createForm($formEntityMail, $entity, array(
+//                'method' => 'PUT',
+//            ));
+//            $formEntity->handleRequest($request);
+//            $em->getRepository('NotificacionBundle:Correo')->updateEntity("dasda", "dadad", $sendMail->getUsers(), $entity->getAdjunto(), $entity);
+//            return new Response('The Usuario was updated successfully.');
+//        }
+//        $errors = $this->getAllErrorsMessages($editForm);
+//        return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
+//    }
 
     /**
      * Deletes a Correo entity.
@@ -285,7 +272,6 @@ class CorreoController extends BackendController
      */
     public function deleteAction($id)
     {
-
         $em = $this->get('doctrine.orm.entity_manager');
         $entity = $em->getRepository('NotificacionBundle:Correo')->find($id);
 
