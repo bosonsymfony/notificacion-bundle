@@ -14,6 +14,9 @@ angular.module('app')
                             method: 'POST',
                             transformRequest: angular.identity,
                             headers: {'Content-Type': undefined}
+                        },
+                        'get': {
+                            ignoreLoadingBar: true
                         }
                     }),
                     update: $resource(Routing.generate('notificacionmail_create', {}, true) + ':id', null, {
@@ -24,13 +27,24 @@ angular.module('app')
                             method: 'POST',
                             transformRequest: angular.identity,
                             headers: {'Content-Type': undefined}
+                        },
+                        'get': {
+                            ignoreLoadingBar: true
                         }
                     }),
                     users: function (query) {
-                        return $http.get(Routing.generate('notification_users', {}, true) + '?filter=' + query)
+                        return $http.get(Routing.generate('notification_users', {
+                                'filter':query
+                            }, true),{
+                            ignoreLoadingBar: true
+                        })
                     },
                     roles: function (query) {
-                        return $http.get(Routing.generate('notification_roles', {}, true) + '?filter=' + query)
+                        return $http.get(Routing.generate('notification_roles', {
+                                'filter':query
+                            }, true),{
+                            ignoreLoadingBar: true
+                        })
                     },
                     uploadFileToUrl: function (file, uploadUrl) {
                         var fd = new FormData();

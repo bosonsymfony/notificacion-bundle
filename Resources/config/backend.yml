@@ -6,16 +6,12 @@ menu:
         icon: 'mdi mdi-view-quilt'
         includes: notificacion
         children:
-            home:
-                title: 'Notificacion Homepage'
-                type: link
-                state: notificacion.homepage
-            notificacion:
-                title: Notificacion
-                type: link
-                state: notificacion.notificacion
+#            home:
+#                title: 'Notificacion Homepage'
+#                type: link
+#                state: notificacion.homepage
             tiemporeal:
-                title: TiempoReales
+                title: Notificaciones en tiempo real
                 type: link
                 state: notificacion.tiemporeal
             correo:
@@ -23,6 +19,6 @@ menu:
                 type: link
                 state: notificacion.correo
             bandejaentrada:
-                title: BandejaEntradas
+                title: Bandeja de notificaciones
                 type: link
-                state: notificacion.bandejaentrada
+                state: bandejaentrada

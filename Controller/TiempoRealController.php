@@ -15,12 +15,15 @@ use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
 use UCI\Boson\NotificacionBundle\Form\TiempoRealType;
 
 /**
- * TiempoReal controller.
+ * TiempoReal controller. Clase controladora que se encarga de
  *
  * @Route("/notificacion")
  */
 class TiempoRealController extends BackendController
 {
+    /**
+     * @var array
+     */
     private $listFields = array(
         'fields' => array(
             'id',
@@ -40,46 +43,18 @@ class TiempoRealController extends BackendController
             'autor' => array(
                 'fields' => array(
                     'username',
-                    'usernameCanonical',
                     'email',
-                    'emailCanonical',
-                    'enabled',
-                    'salt',
-                    'password',
-                    'lastLogin',
-                    'locked',
-                    'expired',
-                    'expiresAt',
-                    'confirmationToken',
-                    'passwordRequestedAt',
                     'roles',
-                    'credentialsExpired',
-                    'credentialsExpireAt',
-                    'id',
-                    'dominio',
+                    'id'
                 ),
                 'associations' => array()
             ),
             'user' => array(
                 'fields' => array(
                     'username',
-                    'usernameCanonical',
                     'email',
-                    'emailCanonical',
-                    'enabled',
-                    'salt',
-                    'password',
-                    'lastLogin',
-                    'locked',
-                    'expired',
-                    'expiresAt',
-                    'confirmationToken',
-                    'passwordRequestedAt',
                     'roles',
-                    'credentialsExpired',
-                    'credentialsExpireAt',
-                    'id',
-                    'dominio',
+                    'id'
                 ),
                 'associations' => array()
             ),
@@ -87,6 +62,9 @@ class TiempoRealController extends BackendController
 
     );
 
+    /**
+     * @var array
+     */
     private $searchFields = array(
         'fecha' => 'datetime',
         'titulo' => 'string',
@@ -94,20 +72,9 @@ class TiempoRealController extends BackendController
         'estado' => 'boolean',
     );
 
-    private $newFormFields = array(
-        'fecha',
-        'titulo',
-        'contenido',
-        'estado',
-    );
-
-    private $editFormFields = array(
-        'fecha',
-        'titulo',
-        'contenido',
-        'estado',
-    );
-
+    /**
+     * @var array
+     */
     private $defaultMaxResults = array(5, 10, 15);
 
 
@@ -183,23 +150,6 @@ class TiempoRealController extends BackendController
     }
 
     /**
-     * Displays a form to create a new TiempoReal entity.
-     *
-     * @Route("/new", name="notificacion_new", options={"expose"=true})
-     * @Method("GET")
-     */
-    public function newAction()
-    {
-        $entity = new TiempoReal();
-        $form = $this->createCreateForm($entity);
-
-        return array(
-            'entity' => $entity,
-            'form' => $form->createView(),
-        );
-    }
-
-    /**
      * Finds and displays a TiempoReal entity.
      *
      * @Route("/{id}", name="notificacion_show", options={"expose"=true})
@@ -218,54 +168,54 @@ class TiempoRealController extends BackendController
         return new Response($this->serialize($entity));
     }
 
-    /**
-     * Creates a form to edit a TiempoReal entity.
-     *
-     * @param TiempoReal $entity The entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createEditForm(TiempoReal $entity)
-    {
-        $form = $this->get('form.factory')->createNamedBuilder('notificacionbundle_notificacion', 'form', $entity, array(//'csrf_protection' => false
-        ));
-        foreach ($this->editFormFields as $index => $editFormField) {
-            $form->add($editFormField);
-        }
-
-        $form->setMethod('PUT');
-
-        return $form->getForm();
-    }
-
-    /**
-     * Edits an existing TiempoReal entity.
-     *
-     * @Route("/{id}", name="notificacion_update", options={"expose"=true})
-     * @Method("PUT")
-     */
-    public function updateAction(Request $request, $id)
-    {
-        $em = $this->get('doctrine.orm.entity_manager');
-
-        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
-
-        if (!$entity) {
-            return new Response('Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
-        }
-
-        $editForm = $this->createEditForm($entity);
-        $editForm->handleRequest($request);
-
-        if ($editForm->isValid()) {
-            $em->flush();
-
-            return new Response('The Usuario was updated successfully.');
-        }
-
-        $errors = $this->getAllErrorsMessages($editForm);
-        return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
+//    /**
+//     * Creates a form to edit a TiempoReal entity.
+//     *
+//     * @param TiempoReal $entity The entity
+//     *
+//     * @return \Symfony\Component\Form\Form The form
+//     */
+//    private function createEditForm(TiempoReal $entity)
+//    {
+//        $form = $this->get('form.factory')->createNamedBuilder('notificacionbundle_notificacion', 'form', $entity, array(//'csrf_protection' => false
+//        ));
+//        foreach ($this->editFormFields as $index => $editFormField) {
+//            $form->add($editFormField);
+//        }
+//
+//        $form->setMethod('PUT');
+//
+//        return $form->getForm();
+//    }
+//
+//    /**
+//     * Edits an existing TiempoReal entity.
+//     *
+//     * @Route("/{id}", name="notificacion_update", options={"expose"=true})
+//     * @Method("PUT")
+//     */
+//    public function updateAction(Request $request, $id)
+//    {
+//        $em = $this->get('doctrine.orm.entity_manager');
+//
+//        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
+//
+//        if (!$entity) {
+//            return new Response('Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
+//        }
+//
+//        $editForm = $this->createEditForm($entity);
+//        $editForm->handleRequest($request);
+//
+//        if ($editForm->isValid()) {
+//            $em->flush();
+//
+//            return new Response('The Usuario was updated successfully.');
+//        }
+//
+//        $errors = $this->getAllErrorsMessages($editForm);
+//        return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
+//    }
 
     /**
      * Deletes a TiempoReal entity.
@@ -289,6 +239,13 @@ class TiempoRealController extends BackendController
         return new Response("The TiempoReal with id '$id' was deleted successfully.");
     }
 
+    /**
+     * @param string $filter
+     * @param int $page
+     * @param int $limit
+     * @param string $order
+     * @return array
+     */
     public function PaginateResults($filter = "", $page = 1, $limit = 5, $order = "id")
     {
         $em = $this->get('doctrine.orm.entity_manager');
@@ -331,6 +288,11 @@ class TiempoRealController extends BackendController
         );
     }
 
+    /**
+     * @param $limit
+     * @param $order
+     * @return array
+     */
     public function transformQuery($limit, $order)
     {
         $limit = (in_array($limit, $this->defaultMaxResults)) ? $limit : $this->defaultMaxResults[0];
@@ -341,6 +303,11 @@ class TiempoRealController extends BackendController
         }
     }
 
+    /**
+     * @param $haystack
+     * @param $needle
+     * @return bool
+     */
     public function startsWith($haystack, $needle)
     {
         // search backwards starting from haystack length characters from the end

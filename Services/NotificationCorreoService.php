@@ -54,9 +54,9 @@ class NotificationCorreoService
         $arrayNotifUsers = $ResponsePersist['users'];
         if (count($arrayNotifUsers) > 0) {
             if ($entity->getAdjunto() instanceof UploadedFile) {
+                $atachmentStored = $this->storeAdjunto($entity->getAdjunto(),$ResponsePersist['id']);
                 $resp = $this->notifyByUser($entity->getTitulo(),
-                    $entity->getContenido(), $arrayNotifUsers, $entity->getAdjunto());
-                $this->storeAdjunto($entity->getAdjunto(),$ResponsePersist['id']);
+                    $entity->getContenido(), $arrayNotifUsers, $atachmentStored);
             } else {
                 $resp = $this->notifyByUser($entity->getTitulo(),
                 $entity->getContenido(), $arrayNotifUsers);
@@ -71,10 +71,10 @@ class NotificationCorreoService
      * @param $titulo
      * @param $contenido
      * @param $usuarios
-     * @param UploadedFile|null $adjunto
+     * @param string|null $adjunto
      * @return bool|int
      */
-    public function notifyByUser($titulo, $contenido, $usuarios, UploadedFile $adjunto= null){
+    public function notifyByUser($titulo, $contenido, $usuarios, $adjunto= null){
 
         //Aqui notificamos
         try{
@@ -85,7 +85,7 @@ class NotificationCorreoService
                 ->setTo($usuarios)
                 ->setBody($contenido);
             if($adjunto)
-                $mensaje->attach(\Swift_Attachment::fromPath($adjunto->getRealPath()));
+                $mensaje->attach(\Swift_Attachment::fromPath($adjunto));
 
            return $sender->send($mensaje);
         }
@@ -97,10 +97,10 @@ class NotificationCorreoService
     }
 
     /**
-     * Almacena en el servidor el
+     * Almacena en el servidor el adjunto recibido
      * @param UploadedFile $file
      * @param null $id
-     * @return bool
+     * @return string | null
      */
     public function storeAdjunto(UploadedFile $file, $id){
         $url = $this->container->getParameter('notification_store_attachments');
@@ -110,9 +110,25 @@ class NotificationCorreoService
             $zip->open($archive, \ZipArchive::CREATE);
             $zip->addFromString($file->getClientOriginalName().".".$file->getClientOriginalExtension(), file_get_contents($file->getRealPath()));
             $zip->close();
+            return $archive;
         }
+        return null;
     }
 
+    /**
+     * Elimina en el servidor el adjunto
+     * @param UploadedFile $file
+     * @param null $id
+     * @return bool
+     */
+    public function deleteAdjunto($id){
+        $url = $this->container->getParameter('notification_store_attachments');
+        $resp = false;
+        if(file_exists($url.DIRECTORY_SEPARATOR.$id)){
+           $resp =  unlink($url.DIRECTORY_SEPARATOR.$id);
+        }
+        return $resp;
+    }
     /**
      * Obtiene la url del adjunto
      * @param $id

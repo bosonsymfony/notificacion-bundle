@@ -28,79 +28,56 @@ use UCI\Boson\TrazasBundle\EventListener\AccionListener;
  */
 class CorreoController extends BackendController
 {
+    /**
+     * @var array
+     */
     private $listFields = array(
         'fields' => array(
             'id',
             'fecha',
             'titulo',
             'contenido',
-            'adjunto',
+            'adjunto'
         ),
         'associations' => array(
             'tipo' => array(
                 'fields' => array(
                     'id',
-                    'nombre',
-                ),
+                    'nombre'),
                 'associations' => array()
             ),
             'autor' => array(
                 'fields' => array(
                     'username',
-                    'usernameCanonical',
                     'email',
-                    'emailCanonical',
-                    'enabled',
-                    'salt',
-                    'password',
-                    'lastLogin',
-                    'locked',
-                    'expired',
-                    'expiresAt',
-                    'confirmationToken',
-                    'passwordRequestedAt',
                     'roles',
-                    'credentialsExpired',
-                    'credentialsExpireAt',
-                    'id',
-                    'dominio',
-                ),
+                    'id'),
                 'associations' => array()
             ),
             'user' => array(
                 'fields' => array(
                     'username',
-                    'usernameCanonical',
                     'email',
-                    'emailCanonical',
-                    'enabled',
-                    'salt',
-                    'password',
-                    'lastLogin',
-                    'locked',
-                    'expired',
-                    'expiresAt',
-                    'confirmationToken',
-                    'passwordRequestedAt',
                     'roles',
-                    'credentialsExpired',
-                    'credentialsExpireAt',
-                    'id',
-                    'dominio',
-                ),
+                    'id'),
                 'associations' => array()
-            ),
+            )
         )
-
     );
 
+    /**
+     * @var array
+     */
     private $searchFields = array(
         'fecha' => 'datetime',
         'titulo' => 'string',
         'contenido' => 'text',
-        'adjunto' => 'boolean',
+        'adjunto' => 'boolean'
     );
 
+    /**
+     * @var array
+     */
     private $defaultMaxResults = array(5, 10, 15);
 
 
@@ -112,7 +89,6 @@ class CorreoController extends BackendController
      */
     public function indexAction(Request $request)
     {
-
         $filter = $request->get('filter', "");
         $limit = $request->get('limit', 5);
         $page = $request->get('page', 1);
@@ -142,8 +118,8 @@ class CorreoController extends BackendController
             $entity->setAutor($autor);
             $resp = $this->get('notificacion.correo')->sendNotification($entity);
             if ($resp)
-                return new Response(' Se realizó correctamente la operación.' . $resp);
-            return new Response('No se realizó correctamente la operación', Response::HTTP_INTERNAL_SERVER_ERROR);
+                return new Response(json_encode(array('data' => ' Se realizó correctamente la operación.')));
+            return new Response(json_encode(array('data' => 'No se realizó correctamente la operación')), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $errors = $this->getAllErrorsMessages($form);
         return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -163,24 +139,6 @@ class CorreoController extends BackendController
             'method' => 'POST',
         ));
         return $form;
-    }
-
-    /**
-     * Displays a form to create a new Correo entity.
-     *
-     * @Route("/new", name="notificacionmail_new", options={"expose"=true})
-     * @Method("GET")
-     * @Template()
-     */
-    public function newAction()
-    {
-        $entity = new Correo();
-        $form = $this->createCreateForm($entity);
-
-        return array(
-            'entity' => $entity,
-            'form' => $form->createView(),
-        );
     }
 
     /**
@@ -278,13 +236,22 @@ class CorreoController extends BackendController
         if (!$entity) {
             return new Response('Unable to find Correo entity.', Response::HTTP_NOT_FOUND);
         }
-
+        if($entity->getAdjunto() === true)
+            $this->get('notificacion.correo')->deleteAdjunto($entity->getId());
         $em->remove($entity);
         $em->flush();
 
         return new Response("The Correo with id '$id' was deleted successfully.");
     }
 
+    /**
+     *
+     * @param string $filter
+     * @param int $page
+     * @param int $limit
+     * @param string $order
+     * @return array
+     */
     public function PaginateResults($filter = "", $page = 1, $limit = 5, $order = "id")
     {
         $em = $this->get('doctrine.orm.entity_manager');
@@ -294,8 +261,7 @@ class CorreoController extends BackendController
 
         list($limit, $order, $direction) = $this->transformQuery($limit, $order);
 
-        $qb
-            ->select($selectFields)
+        $qb ->select($selectFields)
             ->from('NotificacionBundle:Correo', 'Correo')
             ->orderBy('Correo.' . $order, $direction)
             ->setFirstResult(($page - 1) * $limit)
@@ -327,6 +293,11 @@ class CorreoController extends BackendController
         );
     }
 
+    /**
+     * @param $limit
+     * @param $order
+     * @return array
+     */
     public function transformQuery($limit, $order)
     {
         $limit = (in_array($limit, $this->defaultMaxResults)) ? $limit : $this->defaultMaxResults[0];
@@ -337,6 +308,11 @@ class CorreoController extends BackendController
         }
     }
 
+    /**
+     * @param $haystack
+     * @param $needle
+     * @return bool
+     */
     public function startsWith($haystack, $needle)
     {
         // search backwards starting from haystack length characters from the end
@@ -364,9 +340,7 @@ class CorreoController extends BackendController
             if (array_key_exists('associations', $association)) {
                 $result = array_merge_recursive($result, $this->generateSelect($association['associations'], $index));
             }
-
         }
-
         return $result;
     }
 }

@@ -9,6 +9,8 @@ angular.module('app')
                             entities: $resource(Routing.generate('bandejaentrada', {}, true) + ':id', null, {
                                 'query': {
                                     isArray: false
+                                },'get': {
+                                    ignoreLoadingBar: true
                                 }
                             })
                         };

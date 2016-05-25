@@ -19,6 +19,9 @@ use UCI\Boson\NotificacionBundle\Entity\Notificacion;
  */
 class BandejaEntradaController extends BackendController
 {
+    /**
+     * @var array Arreglo de campos para la vista
+     */
     private $listFields = array(
         'fields' => array(
             'id',
@@ -47,12 +50,18 @@ class BandejaEntradaController extends BackendController
 
     );
 
+    /**
+     * @var array de campos para la búsqueda
+     */
     private $searchFields = array(
         'fecha' => 'datetime',
         'titulo' => 'string',
         'contenido' => 'text',
     );
 
+    /**
+     * @var array de resultados.
+     */
     private $defaultMaxResults = array(5, 10, 15);
 
 
@@ -113,6 +122,13 @@ class BandejaEntradaController extends BackendController
         return new Response("The Notificacion with id '$id' was deleted successfully.");
     }
 
+    /**
+     * @param string $filter
+     * @param int $page
+     * @param int $limit
+     * @param string $order
+     * @return array
+     */
     public function PaginateResults($filter = "", $page = 1, $limit = 5, $order = "id")
     {
         $em = $this->get('doctrine.orm.entity_manager');
@@ -155,6 +171,11 @@ class BandejaEntradaController extends BackendController
         );
     }
 
+    /**
+     * @param $limit
+     * @param $order
+     * @return array
+     */
     public function transformQuery($limit, $order)
     {
         $limit = (in_array($limit, $this->defaultMaxResults)) ? $limit : $this->defaultMaxResults[0];
@@ -165,6 +186,11 @@ class BandejaEntradaController extends BackendController
         }
     }
 
+    /**
+     * @param $haystack
+     * @param $needle
+     * @return bool
+     */
     public function startsWith($haystack, $needle)
     {
         // search backwards starting from haystack length characters from the end

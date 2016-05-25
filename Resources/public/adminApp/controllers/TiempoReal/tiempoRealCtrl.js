@@ -176,6 +176,7 @@ angular.module('app')
                         update = true;
                         clean();
                     }
+                    toastr.success(response.data);
                 }
 
                 function clean() {

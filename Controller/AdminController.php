@@ -5,6 +5,10 @@ namespace UCI\Boson\NotificacionBundle\Controller;
 use UCI\Boson\BackendBundle\Controller\BackendController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
+/**
+ * Class AdminController
+ * @package UCI\Boson\NotificacionBundle\Controller
+ */
 class AdminController extends BackendController
 {
     /**
@@ -14,5 +18,4 @@ class AdminController extends BackendController
     {
         return $this->jsResponse('NotificacionBundle:Scripts:config.js.twig');
     }
-
 }

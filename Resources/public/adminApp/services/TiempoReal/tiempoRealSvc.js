@@ -9,13 +9,24 @@ angular.module('app')
                             entities: $resource(Routing.generate('notificacion_create', {}, true) + ':id', null, {
                                 'query': {
                                     isArray: false
+                                },
+                                'get': {
+                                    ignoreLoadingBar: true
                                 }
                             }),
                             users: function (query){
-                                return $http.get(Routing.generate('notification_users', {}, true)+'?filter='+query)
+                                return $http.get(Routing.generate('notification_users', {
+                                    'filter':query
+                                }, true),{
+                                    ignoreLoadingBar: true
+                                })
                             },
                             roles: function (query){
-                                return $http.get(Routing.generate('notification_roles', {}, true)+'?filter='+query)
+                                return $http.get(Routing.generate('notification_roles', {
+                                    'filter':query
+                                }, true),{
+                                    ignoreLoadingBar: true
+                                })
                             }
                         };
                     }
