@@ -505,11 +505,15 @@ angular.module('app')
     ).controller('correoShowCtrl',
     ['$scope', '$mdDialog', 'correoSvc', 'object',
         function ($scope, $mdDialog, bandejaEntradaSvc, object) {
+            if(object.adjunto){
+                $scope.showDivAdjunto = true;
+            }
             $scope.entity = {
                 'notificacionbundle_notificacionmail[fecha]': object.fecha.date,
                 'notificacionbundle_notificacionmail[titulo]': object.titulo,
                 'notificacionbundle_notificacionmail[contenido]': object.contenido,
                 'notificacionbundle_notificacionmail[autor]': object.autor.username,
+                'notificacionbundle_notificacionmail[adjunto]': object.adjunto,
                 'notificacionbundle_notificacionmail[users]': object.user.map(function(item){
                     return {username:item.username,email:item.email} ;
                 })
