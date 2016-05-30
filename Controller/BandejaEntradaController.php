@@ -15,7 +15,6 @@ use UCI\Boson\NotificacionBundle\Entity\Notificacion;
 /**
  * BandejaEntrada controller.
  *
- * @Route("/bandejaentrada")
  */
 class BandejaEntradaController extends BackendController
 {
@@ -68,7 +67,7 @@ class BandejaEntradaController extends BackendController
     /**
      * Lists all BandejaEntrada entities.
      *
-     * @Route("/", name="bandejaentrada", options={"expose"=true})
+     * @Route("/bandejaentrada/", name="bandejaentrada", options={"expose"=true})
      * @Method("GET")
      */
     public function indexAction(Request $request)
@@ -85,7 +84,7 @@ class BandejaEntradaController extends BackendController
     /**
      * Finds and displays a BandejaEntrada entity.
      *
-     * @Route("/{id}", name="bandejaentrada_show", options={"expose"=true})
+     * @Route("/bandejaentrada/{id}", name="bandejaentrada_show", options={"expose"=true})
      * @Method("GET")
      */
     public function showAction($id)
@@ -104,7 +103,7 @@ class BandejaEntradaController extends BackendController
     /**
      * Deletes a Notificacion entity.
      *
-     * @Route("/{id}", name="bandejaentrada_delete", options={"expose"=true})
+     * @Route("/bandejaentrada/{id}", name="bandejaentrada_delete", options={"expose"=true})
      * @Method("DELETE")
      */
     public function deleteAction($id)

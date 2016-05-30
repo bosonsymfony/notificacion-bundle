@@ -4,7 +4,7 @@ notificacion_ajax:
     methods: ["GET"]
 
 controlador_notifi_view:
-    resource: @NotificacionBundle/Controller/
+    resource: "@NotificacionBundle/Controller"
     type: annotation
 
 notification_users:
@@ -20,3 +20,9 @@ notification_roles:
     path: /notification_roles
     options:
             expose: true
+
+notTest:
+    defaults: {_controller: NotificacionBundle:Notificacion:index}
+    path: /notificacionbundle/testview
+    options:
+                expose: true

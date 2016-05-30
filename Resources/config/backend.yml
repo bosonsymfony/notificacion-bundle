@@ -1,7 +1,7 @@
 config_route: notificacion_app_config
 menu:
     notificacion:
-        title: Notificacion
+        title: Notificación
         type: toggle
         icon: 'mdi mdi-view-quilt'
         includes: notificacion
