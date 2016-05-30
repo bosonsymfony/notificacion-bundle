@@ -223,3 +223,41 @@ Contribuidores
 Licencia
 --------
 
+
+
+dasdadsadsa
+___________
+
+
+ Cargar la libreria cliente de socket.io
+    <script src="{{ asset('bundles/notificacion/node_modules/socket.io-client/socket.io.js') }}"></script>
+    <script src="{{ asset('bundles/notificacion/node_modules/angular-toastr/dist/angular-toastr.tpls.min.js') }}"></script>
+    <script>
+        var socket = io.connect('http://10.58.10.152:3000');
+    </script>
+
+    Esto es un ejemplo de como incluir y registrar los sockets desde un controlador de angularjs
+    function getToken(){
+        $http.get($scope.urlServer+"/notificaciones/security-token").success(function (data) {
+            socket.emit('newClient', {"security": data });
+        });
+    }
+    getToken();
+
+    socket.on('notification', function (data) {
+        toastr.info(data)
+    });
+    socket.on('errorConnection', function (data) {
+        toastr.error(data)
+    });
+
+    Aqui debes incuir un ejemplo de como hacerlo con jquery al final es hacer una petición a la ruta "/notificaciones/security-token"
+    y hacer lo mismo:
+    socket.emit('newClient', {"security": data });
+
+    socket.on('notification', function (data) {
+        toastr.info(data)
+    });
+    socket.on('errorConnection', function (data) {
+        toastr.error(data)
+    });

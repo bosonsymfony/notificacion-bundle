@@ -15,29 +15,29 @@
             <div layout-gt-sm="row">
                 <div flex-gt-sm>
                     <label class="required">Fecha</label>
-
                     <div>
                         <p ng-bind="entity['notificacionbundle_notificacionmail[fecha]']"></p>
                     </div>
                 </div>
                 <div flex-gt-sm>
                     <label class="required">Autor</label>
-
                     <div>
                         <p ng-bind="entity['notificacionbundle_notificacionmail[autor]']">
                     </div>
                 </div>
                 <div class="md-block" flex-gt-sm>
                     <label class="required">Titulo</label>
-
                     <p ng-bind="entity['notificacionbundle_notificacionmail[titulo]']"></p>
                 </div>
             </div>
             <div layout-gt-sm="row">
                 <div class="md-block" flex-gt-sm>
                     <label class="required">Contenido</label>
-
                     <p ng-bind="entity['notificacionbundle_notificacionmail[contenido]']"></p>
+                </div>
+                <div class="md-block" ng-show="showDivAdjunto" flex-gt-sm>
+                    <label class="required">Adjunto</label>
+                    <p ng-bind="entity['notificacionbundle_notificacionmail[adjunto]']"></p>
                 </div>
             </div>
             <md-chips class="custom-chips" ng-model="entity['notificacionbundle_notificacionmail[users]']" readonly=true>

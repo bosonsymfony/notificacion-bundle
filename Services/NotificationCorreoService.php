@@ -106,9 +106,9 @@ class NotificationCorreoService
         $url = $this->container->getParameter('notification_store_attachments');
         if($url){
             $zip = new \ZipArchive();
-            $archive = $url.DIRECTORY_SEPARATOR.$id;
+            $archive = $url.DIRECTORY_SEPARATOR.$id.'.zip';
             $zip->open($archive, \ZipArchive::CREATE);
-            $zip->addFromString($file->getClientOriginalName().".".$file->getClientOriginalExtension(), file_get_contents($file->getRealPath()));
+            $zip->addFromString($file->getClientOriginalName(), file_get_contents($file->getRealPath()));
             $zip->close();
             return $archive;
         }
@@ -138,14 +138,13 @@ class NotificationCorreoService
         $url = $this->container->getParameter('notification_store_attachments');
         if($url){
             $zip = new \ZipArchive();
-            $archive = $url.DIRECTORY_SEPARATOR.$id;
+            $archive = $url.DIRECTORY_SEPARATOR.$id.'.zip';
             $resp = $zip->open($archive);
             if($resp === true){
                 $stat = $zip->statIndex(0);
                 $zip->close();
                 return basename(basename( $stat['name'] ));
             }
-
         }
         return false;
     }

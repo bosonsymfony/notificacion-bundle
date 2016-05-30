@@ -79,7 +79,6 @@ class CorreoController extends BackendController
      */
     private $defaultMaxResults = array(5, 10, 15);
 
-
     /**
      * Lists all Correo entities.
      *
