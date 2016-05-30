@@ -77,7 +77,7 @@ angular.module('app')
                         templateUrl: $scope.$urlAssets + 'bundles/notificacion/adminApp/views/TiempoReal/delete-dialog.html'
                     }).then(getEntities);
                 };
-
+                
                 $scope.addEntity = function (event) {
                     $mdDialog.show({
                         clickOutsideToClose: true,
@@ -199,7 +199,12 @@ angular.module('app')
                         $scope.entity['notificacionbundle_notificacion[roles]'] = $scope.selectedRoles.map(function (role) {
                             return role.id;
                         });
-                        tiempoRealSvc.entities.save($scope.entity, success, error);
+                        //tiempoRealSvc.getCsrfToken().then(function (data) {
+                          //  console.log(data.data);
+                            //$scope.entity['notificacionbundle_notificacion[_token]'] = data.data;
+                            tiempoRealSvc.entities.save($scope.entity, success, error);
+                           // }
+                        //)
                     }
                 }
 

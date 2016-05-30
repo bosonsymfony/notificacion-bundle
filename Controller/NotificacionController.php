@@ -4,21 +4,35 @@ namespace UCI\Boson\NotificacionBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Query;
-use Doctrine\ORM\Tools\Pagination\Paginator;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template; //Debe quitarse
 use Symfony\Component\HttpFoundation\Response;
 use UCI\Boson\BackendBundle\Controller\BackendController;
 use UCI\Boson\NotificacionBundle\Entity\Notificacion;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 /**
  * Notificacion controller.
  *
- * @Route("/notificacion")
  */
 class NotificacionController extends BackendController
 {
+
+    public function indexAction(){
+        $securityInf = $this->get("notificacion.notification")->getUserSecurityInfo();
+        return $this->render("NotificacionBundle:Default:index.html.twig",array("securityInf"=>$securityInf));
+    }
+
+
+    /**
+     * Obtiene el token para que los formularios de angular trabajen.
+     * 
+     * @Route("/notificacion_bundle/csrf_token", name="notificacion_csrf_form", options={"expose"=true})
+     * @Method("GET")
+     */
+    public function getCsrfTokenAction(){
+        $token = $this->get("security.csrf.token_manager")->getToken($this->getParameter("secret"));
+        return new Response($token->getValue());
+    }
 
     /**
      * @return Response

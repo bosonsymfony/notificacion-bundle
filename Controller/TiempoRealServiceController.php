@@ -2,30 +2,23 @@
 
 namespace UCI\Boson\NotificacionBundle\Controller;
 
-use Doctrine\DBAL\Query\QueryBuilder;
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template; //Debe quitarse
 use Symfony\Component\HttpFoundation\Response;
 use UCI\Boson\BackendBundle\Controller\BackendController;
-use UCI\Boson\NotificacionBundle\Entity\Correo;
-use UCI\Boson\NotificacionBundle\Form\CorreoEntityType;
-use UCI\Boson\NotificacionBundle\Form\CorreoType;
-use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
+use UCI\Boson\NotificacionBundle\Entity\TiempoReal;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
-use UCI\Boson\TrazasBundle\EventListener\AccionListener;
-
+use UCI\Boson\NotificacionBundle\Form\TiempoRealServiceType;
+use UCI\Boson\NotificacionBundle\Form\TiempoRealType;
 
 /**
- * Correo controller.
+ * TiempoReal controller. Clase controladora que se encarga de
  *
  */
-class CorreoController extends BackendController
+class TiempoRealController extends BackendController
 {
     /**
      * @var array
@@ -36,13 +29,14 @@ class CorreoController extends BackendController
             'fecha',
             'titulo',
             'contenido',
-            'adjunto'
+            'estado',
         ),
         'associations' => array(
             'tipo' => array(
                 'fields' => array(
                     'id',
-                    'nombre'),
+                    'nombre',
+                ),
                 'associations' => array()
             ),
             'autor' => array(
@@ -50,7 +44,8 @@ class CorreoController extends BackendController
                     'username',
                     'email',
                     'roles',
-                    'id'),
+                    'id'
+                ),
                 'associations' => array()
             ),
             'user' => array(
@@ -58,10 +53,12 @@ class CorreoController extends BackendController
                     'username',
                     'email',
                     'roles',
-                    'id'),
+                    'id'
+                ),
                 'associations' => array()
-            )
+            ),
         )
+
     );
 
     /**
@@ -71,7 +68,7 @@ class CorreoController extends BackendController
         'fecha' => 'datetime',
         'titulo' => 'string',
         'contenido' => 'text',
-        'adjunto' => 'boolean'
+        'estado' => 'boolean',
     );
 
     /**
@@ -81,9 +78,9 @@ class CorreoController extends BackendController
 
 
     /**
-     * Lists all Correo entities.
+     * Lists all TiempoReal entities.
      *
-     * @Route("/notificacionmail/", name="notificacionmail", options={"expose"=true})
+     * @Route("/api/notificacion_services/notificacion/", name="notificacion", options={"expose"=true})
      * @Method("GET")
      */
     public function indexAction(Request $request)
@@ -92,159 +89,169 @@ class CorreoController extends BackendController
         $limit = $request->get('limit', 5);
         $page = $request->get('page', 1);
         $order = $request->get('order', "id");
-        return new Response($this->serialize($this->PaginateResults($filter, $page, $limit, $order)), 200, array(
-            'content-type' => 'application/json'
-        ));
+        return $this->getResponseFormated($request,$this->PaginateResults($filter, $page, $limit, $order), 200);
+    }
+
+    private function getResponseFormated(Request $request, $data, $code = Response::HTTP_OK)
+    {
+        $format = 'json';
+        $accepts = $request->headers->get('accept');
+
+        if (strpos($accepts, "*/*") !== false || strpos($accepts, "application/json" !== false)) {
+            $format = 'json';
+            $header = array("charset" => "UTF-8", "content-type" => "application/json");
+        } elseif (strpos($accepts, "application/xml") !== false) {
+            $format = 'xml';
+            $header = array("charset" => "UTF-8", "content-type" => "application/xml");
+        }
+        $objSerialiced = $this->get("serializer")->serialize($data, $format);
+        $response = new Response($objSerialiced, $code, $header);
+        return $response;
     }
 
     /**
-     * Creates a new Correo entity.
+     * Creates a new TiempoReal entity.
      *
-     * @Route("/notificacionmail/", name="notificacionmail_create", options={"expose"=true})
+     * @Route("/api/notificacion_services/notificacion/", name="notificacion_create", options={"expose"=true})
      * @Method("POST")
      */
     public function createAction(Request $request)
     {
-        $entity = new SendNotMail();
+
+        $entity = new SendNotTiempoReal();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
         if ($form->isValid()) {
+            $em = $this->get('doctrine.orm.default_entity_manager');
+            /* obtengo el autor */
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
             if (is_null($secInfo['data']['userid'])) {
-                return new Response($this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
+                return $this->getResponseFormated($request,$this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
             }
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
-            $resp = $this->get('notificacion.correo')->sendNotification($entity);
-            if ($resp)
-                return new Response(json_encode(array('data' => ' Se realizó correctamente la operación.')));
-            return new Response(json_encode(array('data' => 'No se realizó correctamente la operación')), Response::HTTP_INTERNAL_SERVER_ERROR);
+            /*llamo al registro de notificaciones en el repositorio*/
+            $arrayNotifUsers = $em->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
+            /* notifico con el servicio */
+            if (count($arrayNotifUsers) === 1) {
+                $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
+            } else {
+                $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
+            }
+            return $this->getResponseFormated($request, array("data" => 'The TiempoReal was created successfully.'), Response::HTTP_CREATED);
         }
         $errors = $this->getAllErrorsMessages($form);
-        return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
+        return new Response($request,$errors, Response::HTTP_BAD_REQUEST);
     }
 
     /**
-     * Creates a form to create a Correo entity.
+     * Creates a form to create a TiempoReal entity.
      *
-     * @param Correo $entity The entity
+     * @param TiempoReal $entity The entity
      *
      * @return \Symfony\Component\Form\Form The form
      */
-    private function createCreateForm(SendNotMail $model)
+    private function createCreateForm(SendNotTiempoReal $model)
     {
-        $formMail = new CorreoType();
-        $form = $this->createForm($formMail, $model, array(
-            'method' => 'POST',
+        $this->get("security.csrf.token_manager")->getToken($this->getParameter("secret"));
+        $formNot = new TiempoRealServiceType();
+        $form = $this->createForm($formNot, $model, array(
+            'method' => 'POST', "csrf_protection" => false, "allow_extra_fields" => true
         ));
         return $form;
     }
 
+
     /**
-     * Finds and displays a Correo entity.
+     * Finds and displays a TiempoReal entity.
      *
-     * @Route("/notificacionmail/{id}", name="notificacionmail_show", options={"expose"=true})
+     * @Route("/api/notificacion_services/notificacion/{id}", name="notificacion_show", options={"expose"=true})
      * @Method("GET")
      */
-    public function showAction($id)
+    public function showAction(Request $request, $id)
     {
         $em = $this->get('doctrine.orm.entity_manager');
-        $qb = $em->createQueryBuilder();
-        $qb->select('partial correo.{id,fecha,titulo,contenido,adjunto,autor},partial user.{username,id,email},partial autor.{username,id,email}')->from('NotificacionBundle:Correo', 'correo')->where('correo.id = :identifier')
-            ->leftjoin('correo.user', 'user')
-            ->leftjoin('correo.autor', 'autor')
-            ->setParameter('identifier', $id);
 
-        $query = $qb->getQuery();
-        $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
-        $query->setHydrationMode(Query::HYDRATE_ARRAY);
-        $entity = $query->getOneOrNullResult();
+        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
+
         if (!$entity) {
-            return new Response('Unable to find Correo entity.', Response::HTTP_NOT_FOUND);
+            return $this->getResponseFormated($request,'Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
         }
-        if ($entity['adjunto'] === true) {
-            $entity['adjunto'] = $this->get('notificacion.correo')->getNombreAdjunto($id);
-        }
-        return new Response(json_encode($entity));
-    }
 
+        return $this->getResponseFormated($request,$entity,Response::HTTP_OK);
+    }
 //    /**
-//     * Creates a form to edit a Correo entity.
+//     * Creates a form to edit a TiempoReal entity.
 //     *
-//     * @param $model SendNotMail Form customized to the view
+//     * @param TiempoReal $entity The entity
+//     *
 //     * @return \Symfony\Component\Form\Form The form
 //     */
-//    private function createEditForm(SendNotMail $model)
+//    private function createEditForm(TiempoReal $entity)
 //    {
-//        $formMail = new CorreoType();
-//        $form = $this->createForm($formMail, $model, array(
-//            'method' => 'PUT',
+//        $form = $this->get('form.factory')->createNamedBuilder('notificacionbundle_notificacion', 'form', $entity, array(//'csrf_protection' => false
 //        ));
-//        return $form;
+//        foreach ($this->editFormFields as $index => $editFormField) {
+//            $form->add($editFormField);
+//        }
+//
+//        $form->setMethod('PUT');
+//
+//        return $form->getForm();
 //    }
-
+//
 //    /**
-//     * Edits an existing Correo entity.
+//     * Edits an existing TiempoReal entity.
 //     *
-//     * @Route("/notificacionmail/{id}", name="notificacionmail_update", options={"expose"=true})
+//     * @Route("/api/notificacion_services/notificacion/{id}", name="notificacion_update", options={"expose"=true})
 //     * @Method("PUT")
 //     */
 //    public function updateAction(Request $request, $id)
 //    {
 //        $em = $this->get('doctrine.orm.entity_manager');
 //
-//        $entity = $em->getRepository('NotificacionBundle:Correo')->findClear($id);
+//        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
+//
 //        if (!$entity) {
-//            return new Response('Unable to find Correo entity.', Response::HTTP_NOT_FOUND);
+//            return new Response('Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
 //        }
-//        $sendMail = new SendNotMail();
-//        $editForm = $this->createEditForm($sendMail);
+//
+//        $editForm = $this->createEditForm($entity);
 //        $editForm->handleRequest($request);
 //
 //        if ($editForm->isValid()) {
-//            $users = $em->getRepository('NotificacionBundle:Correo')->getListUsersToNotify($sendMail);
-//            $paramsReq = $request->request->get('notificacionbundle_notificacionmail');
-//            unset($paramsReq['users']);
-//            unset($paramsReq['roles']);
-//            $paramsReq['user'] = $users;
+//            $em->flush();
 //
-//            $request->request->set('notificacionbundle_notificacionmail',$paramsReq);
-//            $formEntityMail = new CorreoEntityType();
-//            $formEntity = $this->createForm($formEntityMail, $entity, array(
-//                'method' => 'PUT',
-//            ));
-//            $formEntity->handleRequest($request);
-//            $em->getRepository('NotificacionBundle:Correo')->updateEntity("dasda", "dadad", $sendMail->getUsers(), $entity->getAdjunto(), $entity);
 //            return new Response('The Usuario was updated successfully.');
 //        }
+//
 //        $errors = $this->getAllErrorsMessages($editForm);
 //        return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
 //    }
 
     /**
-     * Deletes a Correo entity.
+     * Deletes a TiempoReal entity.
      *
-     * @Route("/notificacionmail/{id}", name="notificacionmail_delete", options={"expose"=true})
+     * @Route("/api/notificacion_services/notificacion/{id}", name="notificacion_delete", options={"expose"=true})
      * @Method("DELETE")
      */
-    public function deleteAction($id)
+    public function deleteAction(Request $request, $id)
     {
+
         $em = $this->get('doctrine.orm.entity_manager');
-        $entity = $em->getRepository('NotificacionBundle:Correo')->find($id);
+        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
 
         if (!$entity) {
-            return new Response('Unable to find Correo entity.', Response::HTTP_NOT_FOUND);
+            return  $this->getResponseFormated($request, array("data"=>'Unable to find TiempoReal entity.'), Response::HTTP_NOT_FOUND);
         }
-        if($entity->getAdjunto() === true)
-            $this->get('notificacion.correo')->deleteAdjunto($entity->getId());
         $em->remove($entity);
         $em->flush();
 
-        return new Response("The Correo with id '$id' was deleted successfully.");
+        return $this->getResponseFormated($request,array("The TiempoReal with id '$id' was deleted successfully."),Response::HTTP_OK);
     }
 
+
     /**
-     *
      * @param string $filter
      * @param int $page
      * @param int $limit
@@ -254,15 +261,16 @@ class CorreoController extends BackendController
     public function PaginateResults($filter = "", $page = 1, $limit = 5, $order = "id")
     {
         $em = $this->get('doctrine.orm.entity_manager');
-        $selectFields = "partial Correo.{" . implode(', ', $this->listFields['fields']) . "}";
-        $selectAssociations = $this->generateSelect($this->listFields['associations'], 'Correo');
+        $selectFields = "partial TiempoReal.{" . implode(', ', $this->listFields['fields']) . "}";
+        $selectAssociations = $this->generateSelect($this->listFields['associations'], 'TiempoReal');
         $qb = $em->createQueryBuilder();
 
         list($limit, $order, $direction) = $this->transformQuery($limit, $order);
 
-        $qb ->select($selectFields)
-            ->from('NotificacionBundle:Correo', 'Correo')
-            ->orderBy('Correo.' . $order, $direction)
+        $qb
+            ->select($selectFields)
+            ->from('NotificacionBundle:TiempoReal', 'TiempoReal')
+            ->orderBy('TiempoReal.' . $order, $direction)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
@@ -275,7 +283,7 @@ class CorreoController extends BackendController
         }
 
         foreach ($this->searchFields as $index => $searchField) {
-            $like = ($searchField !== 'string') ? "CAST(Correo.$index AS TEXT)" : "LOWER(Correo.$index)";
+            $like = ($searchField !== 'string') ? "CAST(TiempoReal.$index AS TEXT)" : "LOWER(TiempoReal.$index)";
             $qb->orWhere("$like LIKE '%$filter%'");
         }
 
@@ -312,7 +320,7 @@ class CorreoController extends BackendController
      * @param $needle
      * @return bool
      */
-    public function startsWith($haystack, $needle)
+    private function startsWith($haystack, $needle)
     {
         // search backwards starting from haystack length characters from the end
         return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== false;
@@ -329,17 +337,17 @@ class CorreoController extends BackendController
             'select' => array(),
             'join' => array()
         );
-
         foreach ($associations as $index => $association) {
             $select = 'partial ' . $index . '.{' . implode(', ', $association['fields']) . '}';
             $result['select'][] = $select;
             $join = $parent . '.' . $index;
             $result['join'][$index] = $join;
-
             if (array_key_exists('associations', $association)) {
                 $result = array_merge_recursive($result, $this->generateSelect($association['associations'], $index));
             }
         }
         return $result;
     }
+
+
 }

@@ -17,7 +17,6 @@ use UCI\Boson\NotificacionBundle\Form\TiempoRealType;
 /**
  * TiempoReal controller. Clase controladora que se encarga de
  *
- * @Route("/notificacion")
  */
 class TiempoRealController extends BackendController
 {
@@ -81,7 +80,7 @@ class TiempoRealController extends BackendController
     /**
      * Lists all TiempoReal entities.
      *
-     * @Route("/", name="notificacion", options={"expose"=true})
+     * @Route("/notificacion/", name="notificacion", options={"expose"=true})
      * @Method("GET")
      */
     public function indexAction(Request $request)
@@ -98,7 +97,7 @@ class TiempoRealController extends BackendController
     /**
      * Creates a new TiempoReal entity.
      *
-     * @Route("/", name="notificacion_create", options={"expose"=true})
+     * @Route("/notificacion/", name="notificacion_create", options={"expose"=true})
      * @Method("POST")
      */
     public function createAction(Request $request)
@@ -123,7 +122,6 @@ class TiempoRealController extends BackendController
             } else {
                 $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
             }
-
             return new Response('The TiempoReal was created successfully.');
         }
 
@@ -152,7 +150,7 @@ class TiempoRealController extends BackendController
     /**
      * Finds and displays a TiempoReal entity.
      *
-     * @Route("/{id}", name="notificacion_show", options={"expose"=true})
+     * @Route("/notificacion/{id}", name="notificacion_show", options={"expose"=true})
      * @Method("GET")
      */
     public function showAction($id)
@@ -191,7 +189,7 @@ class TiempoRealController extends BackendController
 //    /**
 //     * Edits an existing TiempoReal entity.
 //     *
-//     * @Route("/{id}", name="notificacion_update", options={"expose"=true})
+//     * @Route("/notificacion/{id}", name="notificacion_update", options={"expose"=true})
 //     * @Method("PUT")
 //     */
 //    public function updateAction(Request $request, $id)
@@ -220,7 +218,7 @@ class TiempoRealController extends BackendController
     /**
      * Deletes a TiempoReal entity.
      *
-     * @Route("/{id}", name="notificacion_delete", options={"expose"=true})
+     * @Route("/notificacion/{id}", name="notificacion_delete", options={"expose"=true})
      * @Method("DELETE")
      */
     public function deleteAction($id)
@@ -276,6 +274,7 @@ class TiempoRealController extends BackendController
         }
 
         $query = $qb->getQuery();
+//        dump($query->getDQL());die;
         $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $query->setHydrationMode(Query::HYDRATE_ARRAY);
 
