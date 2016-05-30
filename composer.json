@@ -5,13 +5,14 @@
     "description": "Paquete de notificaciones de Boson",
     "authors": [
         {
-            "name": "Lienzt Chang Collado",
-            "email": "lchang@estudiantes.uci.cu"
-        },
-	    {
             "name": "Daniel Arturo Casals Amat",
             "email": "dacasals@uci.cu"
+        },
+        {
+            "name": "Lienzt Chang Collado",
+            "email": "lchang@estudiantes.uci.cu"
         }
+
     ], "autoload": {
     "psr-0": {"UCI\\Boson\\NotificacionBundle": ""}
 },
