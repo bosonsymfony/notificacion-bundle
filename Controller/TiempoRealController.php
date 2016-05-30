@@ -118,11 +118,13 @@ class TiempoRealController extends BackendController
             $arrayNotifUsers = $em->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
             /* notifico con el servicio */
             if (count($arrayNotifUsers) === 1) {
-                $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
+                $respService = $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
             } else {
-                $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
+                $respService = $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
             }
-            return new Response('The TiempoReal was created successfully.');
+            if($respService)
+                return new Response('The TiempoReal was created successfully.');
+            return  new Response(json_encode(array("data"=>$this->get("translator")->trans("message.notificacion_tr.create_fail"),"type"=>"warning")));
         }
 
 
@@ -160,7 +162,7 @@ class TiempoRealController extends BackendController
         $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
 
         if (!$entity) {
-            return new Response('Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
+            return new Response($this->get("translator")->trans("message.notificacion_tr.show_fail"), Response::HTTP_NOT_FOUND);
         }
 
         return new Response($this->serialize($entity));
@@ -228,7 +230,7 @@ class TiempoRealController extends BackendController
         $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
 
         if (!$entity) {
-            return new Response('Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
+            return new Response($this->get("translator")->trans("message.notificacion_tr.show_fail"), Response::HTTP_NOT_FOUND);
         }
 
         $em->remove($entity);

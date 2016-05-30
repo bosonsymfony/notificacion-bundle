@@ -2,3 +2,8 @@ message:
     get404: The notification resource was not founded with the specified id
     get403: The notification resource with the specified %s is forbidden
     post401: Needs to authenticate first
+
+    notificacion_tr:
+        create_fail: "No fue posible notificar,la notificación se registró en la bandeja de entrada"
+        create_success: 'La notificación se registró satisfactoriamente.'
+        show_fail: 'No existe ninguna notificación con este identificador.'

@@ -3,6 +3,7 @@
 namespace UCI\Boson\NotificacionBundle\Services;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use UCI\Boson\NotificacionBundle\Entity\TiempoReal;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
@@ -73,7 +74,7 @@ class NotificationTRService
         $body = array_merge(array('security_data' => $securityInf['data']),
             array('notif_data' => $notif_data));
 
-        $resp = $client->post($url,
+        try{$resp = $client->post($url,
             ['json' => $body,
                 'headers' =>
                     [
@@ -81,6 +82,10 @@ class NotificationTRService
                         'content-type' => 'application/json'
                     ]]
         );
+        }
+        catch (ConnectException $exc){
+            return false;
+        }
         return $resp;
     }
 

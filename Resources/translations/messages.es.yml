@@ -2,3 +2,8 @@ message:
     get404: The recurso notificación con el id especificado no fué encontrado
     get403: he recurso notificación con el  %s está prohibido
     post401: Necesitas autenticarte primero
+
+    notificacion_tr:
+        create_fail: "Cant be posible to notify, the notification was registred in the inbox"
+        create_success: 'The notification was created successfully.'
+        show_fail: 'Unable to find a notificaction with this identifier.'
