@@ -19,6 +19,7 @@ class NotificationTRService
      * @var ContainerInterface
      */
     private $container;
+
     /**
      * @var \Doctrine\ORM\EntityManager
      */
