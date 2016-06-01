@@ -51,7 +51,11 @@ class NotificationCorreoService
     public function sendNotification(SendNotMail $entity){
         /*llamo al registro de notificaciones en el repositorio*/
         $ResponsePersist = $this->manager->getRepository('NotificacionBundle:Correo')->persistFormNotification($entity);
+        if(!is_array($ResponsePersist) || !array_key_exists('users',$ResponsePersist)){
+            return false;
+        }
         $arrayNotifUsers = $ResponsePersist['users'];
+
         if (count($arrayNotifUsers) > 0) {
             if ($entity->getAdjunto() instanceof UploadedFile) {
                 $atachmentStored = $this->storeAdjunto($entity->getAdjunto(),$ResponsePersist['id']);
