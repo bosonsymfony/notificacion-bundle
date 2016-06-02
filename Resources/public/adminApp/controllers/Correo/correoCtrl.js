@@ -201,25 +201,30 @@ angular.module('app')
                             fd.append('notificacionbundle_notificacionmail[adjunto]', $scope.files[0].lfFile);
                         fd.append('notificacionbundle_notificacionmail[titulo]', $scope.entity['notificacionbundle_notificacionmail[titulo]']);
                         fd.append('notificacionbundle_notificacionmail[contenido]', $scope.entity['notificacionbundle_notificacionmail[contenido]']);
-                        if ($scope.selectedUsers.length !== 0){
+                        if ($scope.selectedUsers.length !== 0) {
                             var arra = [];
                             arra = $scope.selectedUsers.map(function (user) {
                                 return user.id;
                             });
-                            for(var i =0; i<arra.length;i++){
-                                fd.append('notificacionbundle_notificacionmail[users]['+i+']', arra[i] );
+                            for (var i = 0; i < arra.length; i++) {
+                                fd.append('notificacionbundle_notificacionmail[users][' + i + ']', arra[i]);
                             }
                         }
-                        if ($scope.selectedRoles.length !== 0){
+                        if ($scope.selectedRoles.length !== 0) {
                             var arra = [];
                             arra = $scope.selectedRoles.map(function (user) {
                                 return user.id;
                             });
-                            for(var i =0; i<arra.length;i++){
-                                fd.append('notificacionbundle_notificacionmail[roles]['+i+']', arra[i] );
+                            for (var i = 0; i < arra.length; i++) {
+                                fd.append('notificacionbundle_notificacionmail[roles][' + i + ']', arra[i]);
                             }
                         }
-                        correoSvc.entities.save(fd, success, error);
+                        correoSvc.getCsrfToken('notificacionmail').then(function (data) {
+                                $scope.entity['notificacionbundle_notificacionmail[_token]'] = data.data;
+                                correoSvc.entities.save(fd, success, error);
+                            }
+                        )
+
                     }
                 }
 
@@ -330,8 +335,8 @@ angular.module('app')
         ['$scope', '$mdDialog', 'correoSvc', 'object',
             function ($scope, $mdDialog, correoSvc, object) {
                 $scope.$watch('files.length', function (newVal, oldVal) {
-                    if(newVal != oldVal) $scope.divAdjuntoFromServer = false;
-                    if($scope.files.length === 0 && $scope.adjuntoFromServer)
+                    if (newVal != oldVal) $scope.divAdjuntoFromServer = false;
+                    if ($scope.files.length === 0 && $scope.adjuntoFromServer)
                         $scope.divAdjuntoFromServer = true;
                 });
 
@@ -357,7 +362,6 @@ angular.module('app')
                 $scope.transformRoleChip = transformRoleChip;
 
 
-
                 $scope.readonly = false;
                 $scope.selectedUserItem = null;
                 $scope.searchUserText = null;
@@ -369,7 +373,7 @@ angular.module('app')
                 $scope.transformChip = transformChip;
 
 
-                $scope.files =  [];
+                $scope.files = [];
                 $scope.adjuntoFromServer = [];
                 $scope.entity = {
                     'notificacionbundle_notificacionmail[fecha]': object.fecha,
@@ -379,7 +383,7 @@ angular.module('app')
                     'notificacionbundle_notificacionmail[adjunto]': object.adjunto,
                 };
                 console.log(object.adjunto);
-                if(object.adjunto){
+                if (object.adjunto) {
                     $scope.divAdjuntoFromServer = true;
                     $scope.adjuntoFromServer.push(object.adjunto);
                     //console.log("addPalo");
@@ -404,32 +408,32 @@ angular.module('app')
                             fd.append('notificacionbundle_notificacionmail[adjunto]', $scope.files[0].lfFile);
                         fd.append('notificacionbundle_notificacionmail[titulo]', $scope.entity['notificacionbundle_notificacionmail[titulo]']);
                         fd.append('notificacionbundle_notificacionmail[contenido]', $scope.entity['notificacionbundle_notificacionmail[contenido]']);
-                        if ($scope.selectedUsers.length !== 0){
+                        if ($scope.selectedUsers.length !== 0) {
                             var arra = [];
                             arra = $scope.selectedUsers.map(function (user) {
                                 return user.id;
                             });
-                            for(var i =0; i<arra.length;i++){
-                                fd.append('notificacionbundle_notificacionmail[users]['+i+']', arra[i] );
+                            for (var i = 0; i < arra.length; i++) {
+                                fd.append('notificacionbundle_notificacionmail[users][' + i + ']', arra[i]);
                             }
                         }
                         fd.append('_method', 'PUT');
-                       // console.log(fd.get('notificacionbundle_notificacionmail[users]'));
-                       // if ($scope.selectedUsers.length !== 0){
-                       //     fd.append('notificacionbundle_notificacionmail[users][]', $scope.selectedUsers.map(function (user) {
-                       //         return user.id;
-                       //     }));
-                       // }
-                        if ($scope.selectedRoles.length !== 0){
+                        // console.log(fd.get('notificacionbundle_notificacionmail[users]'));
+                        // if ($scope.selectedUsers.length !== 0){
+                        //     fd.append('notificacionbundle_notificacionmail[users][]', $scope.selectedUsers.map(function (user) {
+                        //         return user.id;
+                        //     }));
+                        // }
+                        if ($scope.selectedRoles.length !== 0) {
                             fd.append('notificacionbundle_notificacionmail[roles][]', $scope.selectedRoles.map(function (role) {
                                 return role.id;
                             }));
                         }
 
-                        correoSvc.update.save({id: object.id},fd,success,error);
+
+                        correoSvc.update.save({id: object.id}, fd, success, error);
                     }
                 }
-
 
 
                 $scope.accept = function () {
@@ -505,7 +509,7 @@ angular.module('app')
     ).controller('correoShowCtrl',
     ['$scope', '$mdDialog', 'correoSvc', 'object',
         function ($scope, $mdDialog, bandejaEntradaSvc, object) {
-            if(object.adjunto){
+            if (object.adjunto) {
                 $scope.showDivAdjunto = true;
             }
             $scope.entity = {
@@ -514,8 +518,8 @@ angular.module('app')
                 'notificacionbundle_notificacionmail[contenido]': object.contenido,
                 'notificacionbundle_notificacionmail[autor]': object.autor.username,
                 'notificacionbundle_notificacionmail[adjunto]': object.adjunto,
-                'notificacionbundle_notificacionmail[users]': object.user.map(function(item){
-                    return {username:item.username,email:item.email} ;
+                'notificacionbundle_notificacionmail[users]': object.user.map(function (item) {
+                    return {username: item.username, email: item.email};
                 })
             };
             $scope.cancel = function () {

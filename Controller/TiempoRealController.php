@@ -123,7 +123,7 @@ class TiempoRealController extends BackendController
                 $respService = $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
             }
             if($respService)
-                return new Response('The TiempoReal was created successfully.');
+                return new Response('The TiempoReal was created successfully.'.$respService);
             return  new Response(json_encode(array("data"=>$this->get("translator")->trans("message.notificacion_tr.create_fail"),"type"=>"warning")));
         }
 

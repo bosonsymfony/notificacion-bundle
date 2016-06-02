@@ -28,8 +28,8 @@ angular.module('app')
                             ignoreLoadingBar: true
                         })
                     },
-                    getCsrfToken: function () {
-                        return $http.get(Routing.generate('notificacion_csrf_form', {}, true), {
+                    getCsrfToken: function (id_form) {
+                        return $http.post(Routing.generate('notificacion_csrf_form', {}, true),{id_form:id_form}, {
                             ignoreLoadingBar: true
                         })
                     }

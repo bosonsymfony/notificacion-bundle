@@ -199,12 +199,12 @@ angular.module('app')
                         $scope.entity['notificacionbundle_notificacion[roles]'] = $scope.selectedRoles.map(function (role) {
                             return role.id;
                         });
-                        //tiempoRealSvc.getCsrfToken().then(function (data) {
-                          //  console.log(data.data);
-                            //$scope.entity['notificacionbundle_notificacion[_token]'] = data.data;
+                        tiempoRealSvc.getCsrfToken('notificacion').then(function (data) {
+                            console.log(data.data);
+                            $scope.entity['notificacionbundle_notificacion[_token]'] = data.data;
                             tiempoRealSvc.entities.save($scope.entity, success, error);
-                           // }
-                        //)
+                            }
+                        )
                     }
                 }
 

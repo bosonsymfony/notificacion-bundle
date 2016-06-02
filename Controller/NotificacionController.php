@@ -27,12 +27,16 @@ class NotificacionController extends BackendController
      * Obtiene el token para que los formularios de angular trabajen.
      * 
      * @Route("/notificacion_bundle/csrf_token", name="notificacion_csrf_form", options={"expose"=true})
-     * @Method("GET")
+     * @Method("POST")
      */
-    public function getCsrfTokenAction(){
-        $token = $this->get("security.csrf.token_manager")->getToken($this->getParameter("secret"));
-        return new Response($token->getValue());
+    public function getCsrfTokenAction(Request $request){
+        $tokenId = $request->request->get('id_form');
+        $csrf = $this->get('security.csrf.token_manager');
+        $token = $csrf->getToken( 'notificacionbundle_'.$tokenId);
+        return new Response($token);
     }
+
+
 
     /**
      * @return Response

@@ -57,6 +57,11 @@ angular.module('app')
                             })
                             .error(function () {
                             });
+                    },
+                    getCsrfToken: function (id_form) {
+                        return $http.post(Routing.generate('notificacion_csrf_form', {}, true),{id_form:id_form}, {
+                            ignoreLoadingBar: true
+                        })
                     }
                 };
             }
