@@ -220,7 +220,7 @@ angular.module('app')
                             }
                         }
                         correoSvc.getCsrfToken('notificacionmail').then(function (data) {
-                                $scope.entity['notificacionbundle_notificacionmail[_token]'] = data.data;
+                            fd.append('notificacionbundle_notificacionmail[_token]',data.data);
                                 correoSvc.entities.save(fd, success, error);
                             }
                         )

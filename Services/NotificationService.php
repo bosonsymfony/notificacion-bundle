@@ -38,7 +38,6 @@ class NotificationService
     {
         $token = $this->token->getToken();
         $roles = array();
-
         foreach ($token->getRoles() as $roleObj) {
             $roles[] = $roleObj->getRole();
         }

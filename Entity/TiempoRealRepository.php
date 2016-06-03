@@ -1,6 +1,8 @@
 <?php
 
 namespace UCI\Boson\NotificacionBundle\Entity;
+use FOS\UserBundle\Model\UserInterface;
+use UCI\Boson\NotificacionBundle\Exception\NotificacionNotUserValid;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
 
 /**
@@ -35,8 +37,12 @@ class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
             $users = $object->getUsers();
             $roles = $object->getRoles();
             foreach ($users as $user) {
+                if($user instanceof UserInterface){
+                    throw new NotificacionNotUserValid('Not valid User of Symfony2 to notificate');
+                }
                 $entity = $this->createEntity($object->getTitulo(),$object->getContenido(),$object->getAutor(),$user);
                 $this->persistNotification($entity);
+
                 $notified_users[] = $user->getUsername();
             }
             foreach ($roles as $role) {

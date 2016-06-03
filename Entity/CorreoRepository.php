@@ -3,6 +3,8 @@
 namespace UCI\Boson\NotificacionBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Security\Core\User\UserInterface;
+use UCI\Boson\NotificacionBundle\Exception\NotificacionNotUserValid;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
 
 /**
@@ -39,6 +41,9 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
         $users = $object->getUsers();
         $roles = $object->getRoles();
         foreach ($users as $user) {
+            if($user instanceof UserInterface){
+                throw new NotificacionNotUserValid('Not valid User of Symfony2 to notificate');
+            }
             $notified_users['email'][] = $user->getEmail();
             $notified_users['id'][] = $user->getId();
         }
