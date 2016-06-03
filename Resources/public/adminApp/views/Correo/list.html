@@ -75,7 +75,7 @@
             <tr md-row md-select="entity" md-auto-select ng-repeat="entity in entities.data">
                 <td md-cell="" ng-bind="entity.fecha"></td>
                 <td md-cell="" ng-bind="entity.titulo"></td>
-                <td md-cell="" ng-bind="entity.contenido"></td>
+                <td md-cell="" ng-bind="entity.contenido | ellipsis:40"></td>
                 <td md-cell="" ng-bind="entity.adjunto"></td>
             </tr>
             </tbody>

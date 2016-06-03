@@ -19,43 +19,50 @@ use UCI\Boson\NotificacionBundle\Entity\Notificacion;
 class BandejaEntradaController extends BackendController
 {
     /**
-     * @var array Arreglo de campos para la vista
+     * @var Arreglo de variable utilizandas en la vista
      */
     private $listFields = array(
         'fields' => array(
             'id',
-            'fecha',
-            'titulo',
-            'contenido',
-            'deleted_at'
+            'estado',
         ),
         'associations' => array(
-            'tipo' => array(
+            'notificacion' => array(
                 'fields' => array(
                     'id',
-                    'nombre',
+                    'fecha',
+                    'titulo',
+                    'contenido',
                 ),
-                'associations' => array()
+                'associations' => array(
+                    'autor' => array(
+                        'fields' => array(
+                            'username',
+                            'email',
+                            'roles',
+                            'id'
+                        ),
+                        'associations' => array()
+                    ),
+                ),
             ),
-            'autor' => array(
+            'user' => array(
                 'fields' => array(
                     'username',
                     'email',
+                    'roles',
                     'id'
                 ),
                 'associations' => array()
             ),
         )
-
     );
 
     /**
      * @var array de campos para la búsqueda
      */
     private $searchFields = array(
-        'fecha' => 'datetime',
-        'titulo' => 'string',
-        'contenido' => 'text',
+        'id' => 'integer'
     );
 
     /**
@@ -72,11 +79,12 @@ class BandejaEntradaController extends BackendController
      */
     public function indexAction(Request $request)
     {
+        $user =$this->get("security.token_storage")->getToken()->getUser()->getId();
         $filter = $request->get('filter', "");
         $limit = $request->get('limit', 5);
         $page = $request->get('page', 1);
         $order = $request->get('order', "id");
-        return new Response($this->serialize($this->PaginateResults($filter, $page, $limit, $order)), 200, array(
+        return new Response($this->serialize($this->PaginateResults($filter, $page, $limit, $order,$user)), 200, array(
             'content-type' => 'application/json'
         ));
     }
@@ -109,16 +117,19 @@ class BandejaEntradaController extends BackendController
     public function deleteAction($id)
     {
         $em = $this->get('doctrine.orm.entity_manager');
-        $entity = $em->getRepository('NotificacionBundle:Notificacion')->find($id);
-
+        $entity = $em->getRepository('NotificacionBundle:Notificacion','notificacion')->find($id);
         if (!$entity) {
-            return new Response('Unable to find Notificacion entity.', Response::HTTP_NOT_FOUND);
+            return new Response($this->get("translator")->trans("message.notificacion_tr.show_fail"), Response::HTTP_NOT_FOUND);
         }
-        $entity->setDeletedAt(new \DateTime());
-        $em->persist($entity);
-        $em->flush($entity);
+        try {
+            $entity->setDeletedAt(new \DateTime());
+            $em->persist($entity);
+            $em->flush($entity);
 
-        return new Response("The Notificacion with id '$id' was deleted successfully.");
+        } catch (\Exception $ex) {
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
+        }
+        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'),$id), 'type' => 'success')));
     }
 
     /**
@@ -128,33 +139,41 @@ class BandejaEntradaController extends BackendController
      * @param string $order
      * @return array
      */
-    public function PaginateResults($filter = "", $page = 1, $limit = 5, $order = "id")
+    public function PaginateResults($filter = "", $page = 1, $limit = 5, $order = "id",$userId = null)
     {
         $em = $this->get('doctrine.orm.entity_manager');
-        $selectFields = "partial Notificacion.{" . implode(', ', $this->listFields['fields']) . "}";
-        $selectAssociations = $this->generateSelect($this->listFields['associations'], 'Notificacion');
+        $selectFields = "partial TiempoReal.{" . implode(', ', $this->listFields['fields']) . "}";
+        $selectAssociations = $this->generateSelect($this->listFields['associations'], 'TiempoReal');
         $qb = $em->createQueryBuilder();
 
         list($limit, $order, $direction) = $this->transformQuery($limit, $order);
-        $currentDate = new \DateTime();
-        $qb ->select($selectFields)
-            ->from('NotificacionBundle:Notificacion', 'Notificacion')
-            ->orderBy('Notificacion.' . $order, $direction)
+
+        $qb
+            ->select($selectFields)
+            ->from('NotificacionBundle:TiempoReal', 'TiempoReal')
+            //->orderBy('TiempoReal.' . $order, $direction)
             ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->setParameter('currentDate', $currentDate);
+            ->setMaxResults($limit);
+
         foreach ($selectAssociations['select'] as $selectAssociation) {
             $qb->addSelect($selectAssociation);
         }
+
         foreach ($selectAssociations['join'] as $index => $selectAssociation) {
             $qb->leftJoin($selectAssociation, $index);
         }
 
         foreach ($this->searchFields as $index => $searchField) {
-            $like = ($searchField !== 'string') ? "CAST(Notificacion.$index AS TEXT)" : "LOWER(Notificacion.$index)";
+            $like = ($searchField !== 'string') ? "CAST(TiempoReal.$index AS TEXT)" : "LOWER(TiempoReal.$index)";
             $qb->orWhere("$like LIKE '%$filter%'");
         }
-        $qb->andWhere('Notificacion.deleted_at > :currentDate OR Notificacion.deleted_at IS NULL');
+        $qb->orWhere("CAST(notificacion.fecha AS TEXT) LIKE '%$filter%'");
+        $qb->orWhere("LOWER(notificacion.titulo) LIKE '%$filter%'");
+        $qb->orWhere("LOWER(notificacion.contenido) LIKE '%$filter%'");
+        $qb->andWhere('notificacion.deleted_at > :currentDate OR notificacion.deleted_at IS NULL');
+        $qb->andWhere('TiempoReal.user = :identif');
+        $qb->setParameter("currentDate",new \DateTime())
+            ->setParameter("identif",$userId);
         $query = $qb->getQuery();
         $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $query->setHydrationMode(Query::HYDRATE_ARRAY);

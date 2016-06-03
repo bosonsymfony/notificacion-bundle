@@ -115,7 +115,7 @@ class CorreoController extends BackendController
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             $resp = $this->get('notificacion.correo')->sendNotification($entity);
-            if ($resp)
+            if ($resp !== 0)
                 return new Response(json_encode(array('data' => ' Se realizó correctamente la operación.')));
             return new Response(json_encode(array('data' => 'No se realizó correctamente la operación')), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -236,10 +236,14 @@ class CorreoController extends BackendController
         }
         if($entity->getAdjunto() === true)
             $this->get('notificacion.correo')->deleteAdjunto($entity->getId());
-        $em->remove($entity);
-        $em->flush();
+        try {
+            $em->remove($entity);
+            $em->flush();
+        } catch (\Exception $ex) {
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
+        }
+        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'),$id), 'type' => 'success')));
 
-        return new Response("The Correo with id '$id' was deleted successfully.");
     }
 
     /**
@@ -261,7 +265,7 @@ class CorreoController extends BackendController
 
         $qb ->select($selectFields)
             ->from('NotificacionBundle:Correo', 'Correo')
-            ->orderBy('Correo.' . $order, $direction)
+            //->orderBy('Correo.' . $order, $direction)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 

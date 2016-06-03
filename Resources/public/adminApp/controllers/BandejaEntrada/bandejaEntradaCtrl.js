@@ -110,13 +110,14 @@ angular.module('app')
         ]
     )
     .controller('bandejaEntradaDeleteCtrl',
-        ['$scope', '$mdDialog', 'entities', '$q', 'bandejaEntradaSvc',
-            function ($scope, $mdDialog, entities, $q, bandejaEntradaSvc) {
+        ['$scope', '$mdDialog', 'entities', '$q', 'bandejaEntradaSvc','toastr',
+            function ($scope, $mdDialog, entities, $q, bandejaEntradaSvc,toastr) {
                 $scope.cancel = $mdDialog.cancel;
                 function deleteEntity(entity, index) {
                     var deferred = bandejaEntradaSvc.entities.remove({id: entity.notificacion.id});
-                    deferred.$promise.then(function () {
+                    deferred.$promise.then(function (response) {
                         entities.splice(index, 1);
+                        response.type == 'success' ? toastr.success(response.data) : toastr.error(response.data);
                     });
                     return deferred.$promise;
                 }

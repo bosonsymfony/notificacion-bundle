@@ -128,8 +128,8 @@ angular.module('app')
         ]
     )
     .controller('correoDeleteCtrl',
-        ['$scope', '$mdDialog', 'entities', '$q', 'correoSvc',
-            function ($scope, $mdDialog, entities, $q, correoSvc) {
+        ['$scope', '$mdDialog', 'entities', '$q', 'correoSvc','toastr',
+            function ($scope, $mdDialog, entities, $q, correoSvc,toastr) {
 
                 $scope.cancel = $mdDialog.cancel;
 
@@ -138,6 +138,8 @@ angular.module('app')
 
                     deferred.$promise.then(function () {
                         entities.splice(index, 1);
+                        response.type == 'success' ? toastr.success(response.data) : toastr.error(response.data);
+
                     });
 
                     return deferred.$promise;

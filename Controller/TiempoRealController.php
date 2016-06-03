@@ -233,9 +233,9 @@ class TiempoRealController extends BackendController
             $em->remove($entity);
             $em->flush();
         } catch (\Exception $ex) {
-            return new Response(json_encode(array('data' => "The TiempoReal with id '$id' was not deleted.", 'type' => 'error')));
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
         }
-        return new Response(json_encode(array('data' => "The TiempoReal with id '$id' was deleted successfully.", 'type' => 'success')));
+        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'),$id), 'type' => 'success')));
     }
 
     /**
@@ -257,7 +257,7 @@ class TiempoRealController extends BackendController
         $qb
             ->select($selectFields)
             ->from('NotificacionBundle:TiempoReal', 'TiempoReal')
-            ->orderBy('TiempoReal.' . $order, $direction)
+            //->orderBy('TiempoReal.' . $order, $direction)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 

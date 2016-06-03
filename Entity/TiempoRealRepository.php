@@ -39,7 +39,7 @@ class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
             $users = $object->getUsers();
             $roles = $object->getRoles();
             $notificacion = new Notificacion();
-            $tipo =$this->_em->getRepository('NotificacionBundle:TipoNotificacion')->findOneByNombre('Tiempo Real');
+            $tipo = $this->_em->getRepository('NotificacionBundle:TipoNotificacion')->findOneByNombre('Tiempo Real');
             $notificacion->setTitulo($object->getTitulo());
             $notificacion->setTipo($tipo);
             $notificacion->setContenido($object->getContenido());

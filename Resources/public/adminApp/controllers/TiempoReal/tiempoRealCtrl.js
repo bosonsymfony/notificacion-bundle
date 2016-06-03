@@ -128,15 +128,17 @@ angular.module('app')
         ]
     )
     .controller('tiempoRealDeleteCtrl',
-        ['$scope', '$mdDialog', 'entities', '$q', 'tiempoRealSvc', '$http',
-            function ($scope, $mdDialog, entities, $q, tiempoRealSvc, $http) {
+        ['$scope', '$mdDialog', 'entities', '$q', 'tiempoRealSvc', '$http','toastr',
+            function ($scope, $mdDialog, entities, $q, tiempoRealSvc, $http, toastr) {
 
                 $scope.cancel = $mdDialog.cancel;
 
                 function deleteEntity(entity, index) {
                     var deferred = tiempoRealSvc.entities.remove({id: entity.notificacion.id});
-                    deferred.$promise.then(function () {
+                    deferred.$promise.then(function (response) {
                         entities.splice(index, 1);
+                        response.type == 'success' ? toastr.success(response.data) : toastr.error(response.data);
+
                     });
 
                     return deferred.$promise;
@@ -175,7 +177,6 @@ angular.module('app')
                         update = true;
                         clean();
                     }
-                    console.log(response);
                     response.type == 'success' ? toastr.warning(response.data):toastr.success(response.data)    ;
                 }
 
@@ -268,8 +269,6 @@ angular.module('app')
                 /**
                  * choice dialog Roles
                  */
-
-
                 $scope.readonly = false;
                 $scope.selectedRoleItem = null;
                 $scope.searchRoleText = null;

@@ -1,6 +1,7 @@
 <?php
 
 namespace UCI\Boson\NotificacionBundle\Entity;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -22,74 +23,88 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
      * @param SendNotTiempoReal $object
      * @return array Retorna el listado de usuarios a los que se le registró una notificación.
      */
-    public function persistFormNotification(SendNotMail $object){
-        try
-        {
+    public function persistFormNotification(SendNotMail $object)
+    {
+        try {
             $notified_users = $this->getListUsersToNotify($object);
-            $entity = $this->createEntity($object->getTitulo(),$object->getContenido(),$object->getAutor(),$object->getUsers(),$object->getAdjunto());
+            $entity = $this->createEntity($object->getTitulo(), $object->getContenido(), $object->getAutor(), $object->getUsers(), $object->getAdjunto());
             $resp = $this->persistNotification($entity);
-            if(is_nan($resp) === true)
+            if (is_nan($resp) === true)
                 return $resp;
-            return array('users'=>$notified_users['email'], 'id'=>$resp);
-        }
-        catch(\Exception $ex){
+            return array('users' => $notified_users['email'], 'id' => $resp);
+        } catch (\Exception $ex) {
             return $ex->getMessage();
         }
     }
-    public function getListUsersToNotify(SendNotMail $object){
-        $notified_users = array('id'=>array(),'email'=>array());
+
+    public function getListUsersToNotify(SendNotMail $object)
+    {
+        $notified_users = array('id' => array(), 'email' => array());
         $users = $object->getUsers();
         $roles = $object->getRoles();
-        if(!$users instanceof ArrayCollection){
-            throw new \Exception("Must has an ArrayCollection of Users");
+        if ($users instanceof ArrayCollection) {
+            $users = $users->toArray();
         }
-        foreach ($users as $user) {
-            $notified_users['email'][] = $user->getEmail();
-            $notified_users['id'][] = $user->getId();
+        if (is_array($users)) {
+            foreach ($users as $user) {
+                $notified_users['email'][] = $user->getEmail();
+                $notified_users['id'][] = $user->getId();
+            }
+        } else {
+            throw new \Exception("Must has an ArrayCollection or an array of Users");
         }
-        if(!$roles instanceof ArrayCollection){
-            throw new \Exception("Must has an ArrayCollection of Roles");
+
+        if ($roles instanceof ArrayCollection) {
+            $roles = $roles->toArray();
         }
-        foreach ($roles as $role) {
-            $usersByRole = $role->getUsuarios();
-            foreach ($usersByRole as $item) {
-                if(!in_array($item->getEmail(),$notified_users['email'])){
-                    $users[] = $item;
-                    $notified_users['email'][] = $item->getEmail();
-                    $notified_users['id'][] = $item->getId();
+        if (is_array($roles)) {
+            foreach ($roles as $role) {
+                $usersByRole = $role->getUsuarios();
+                foreach ($usersByRole->toArray() as $item) {
+                    if (!in_array($item->getEmail(), $notified_users['email'])) {
+                        $users[] = $item;
+                        $notified_users['email'][] = $item->getEmail();
+                        $notified_users['id'][] = $item->getId();
+                    }
                 }
             }
+        } else {
+            throw new \Exception("Must has an ArrayCollection of Roles");
         }
+
         return $notified_users;
     }
 
 
-    public function persistNotification(Correo $entity){
-        try
-        {$this->_em->persist($entity);
+    public function persistNotification(Correo $entity)
+    {
+        try {
+            $this->_em->persist($entity);
             $this->_em->flush($entity);
-            return  $entity->getId();
-        }
-        catch(\Exception $ex){
+            return $entity->getId();
+        } catch (\Exception $ex) {
             return $ex->getMessage();
         }
     }
-    public function updateEntity($titulo,$contenido,ArrayCollection $users,$adjunto,Correo $entity){
+
+    /*public function updateEntity($titulo, $contenido, ArrayCollection $users, $adjunto, Correo $entity)
+    {
         $entity->setTitulo($titulo);
         $entity->setContenido($contenido);
-        $new  = new ArrayCollection(array_merge($entity->getUser()->toArray(),$users->toArray()));
-        if($adjunto instanceof UploadedFile){
+        $new = new ArrayCollection(array_merge($entity->getUser()->toArray(), $users->toArray()));
+        if ($adjunto instanceof UploadedFile) {
             $entity->setAdjunto(true);
-        }else{
+        } else {
             $entity->setAdjunto(false);
         }
         $entity->setFecha(new \DateTime());
         return $entity;
-    }
+    }*/
 
-    private function createEntity($titulo,$contenido,$autor,$users,$adjunto){
+    private function createEntity($titulo, $contenido, $autor, $users, $adjunto)
+    {
         $entity = new Correo();
-        $tipo =$this->_em->getRepository('NotificacionBundle:TipoNotificacion')->findOneByNombre('Correo');
+        $tipo = $this->_em->getRepository('NotificacionBundle:TipoNotificacion')->findOneByNombre('Correo');
         $entity->setTitulo($titulo);
         $entity->setTipo($tipo);
         $entity->setContenido($contenido);
@@ -97,9 +112,9 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
         foreach ($users as $user) {
             $entity->addUser($user);
         }
-        if($adjunto instanceof UploadedFile){
+        if ($adjunto instanceof UploadedFile) {
             $entity->setAdjunto(true);
-        }else{
+        } else {
             $entity->setAdjunto(false);
         }
         $entity->setFecha(new \DateTime());
@@ -108,11 +123,11 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
 
     public function findClear($id)
     {
-         $qb = $this->_em->createQueryBuilder();
+        $qb = $this->_em->createQueryBuilder();
         $qb->select('correo')
-            ->from('NotificacionBundle:Correo','correo')
+            ->from('NotificacionBundle:Correo', 'correo')
             ->where('correo.id = :identifier')
-            ->setParameter('identifier',$id);
+            ->setParameter('identifier', $id);
         return $entity = $qb->getQuery()->getOneOrNullResult();
     }
 }

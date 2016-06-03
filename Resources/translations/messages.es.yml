@@ -4,6 +4,8 @@ message:
     post401: Necesitas autenticarte primero
 
     notificacion_tr:
-        create_fail: "Cant be posible to notify, the notification was registred in the inbox"
-        create_success: 'The notification was created successfully.'
-        show_fail: 'Unable to find a notificaction with this identifier.'
+        create_fail: "No fue posible notificar,la notificación se registró en la bandeja de entrada"
+        create_success: 'La notificación se registró satisfactoriamente.'
+        show_fail: 'No existe ninguna notificación con este identificador.'
+        delete_success: "La notificación '$id' fue eliminada satisfactoriamente."
+        delete_fail: "La notificación '$id' no fue eliminada."
