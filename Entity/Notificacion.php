@@ -12,7 +12,7 @@ use UCI\Boson\BackendBundle\Validator\Constraints\Format;
  * @ORM\Entity(repositoryClass="UCI\Boson\NotificacionBundle\Entity\NotificacionRepository")
  * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="discriminante", type="string")
- * @ORM\DiscriminatorMap({"c" = "Correo", "e" = "Evento", "t" = "TiempoReal","n"="Notificacion"})
+ * @ORM\DiscriminatorMap({"c" = "Correo", "e" = "Evento","n"="Notificacion"})
  */
 class Notificacion
 {
@@ -63,6 +63,13 @@ class Notificacion
      * @ORM\JoinColumn(name="autor_id", referencedColumnName="id")
      */
     private $autor;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity="UCI\Boson\NotificacionBundle\Entity\TiempoReal", mappedBy = "notificacion",cascade={"persist", "remove"})
+     */
+    private $tiempoReales;
+
 
     /**
      * Get id
@@ -218,5 +225,46 @@ class Notificacion
     public function getDeletedAt()
     {
         return $this->deleted_at;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->tiempoReales = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add tiempoReale
+     *
+     * @param \UCI\Boson\NotificacionBundle\Entity\TiempoReal $tiempoReale
+     *
+     * @return Notificacion
+     */
+    public function addTiempoReale(\UCI\Boson\NotificacionBundle\Entity\TiempoReal $tiempoReale)
+    {
+        $this->tiempoReales[] = $tiempoReale;
+
+        return $this;
+    }
+
+    /**
+     * Remove tiempoReale
+     *
+     * @param \UCI\Boson\NotificacionBundle\Entity\TiempoReal $tiempoReale
+     */
+    public function removeTiempoReale(\UCI\Boson\NotificacionBundle\Entity\TiempoReal $tiempoReale)
+    {
+        $this->tiempoReales->removeElement($tiempoReale);
+    }
+
+    /**
+     * Get tiempoReales
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getTiempoReales()
+    {
+        return $this->tiempoReales;
     }
 }

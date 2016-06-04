@@ -91,6 +91,7 @@ class NotificationTRService
                         ]]
             )->json();
         } catch (ConnectException $exc) {
+
             return false;
         }
        return $resp;
@@ -103,7 +104,6 @@ class NotificationTRService
 //                return false;
 //            });
        // dump($resp->getBody());
-        die;
     }
 
     /**

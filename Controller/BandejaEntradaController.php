@@ -146,7 +146,6 @@ class BandejaEntradaController extends BackendController
         foreach ($selectAssociations['select'] as $selectAssociation) {
             $qb->addSelect($selectAssociation);
         }
-
         foreach ($selectAssociations['join'] as $index => $selectAssociation) {
             $qb->leftJoin($selectAssociation, $index);
         }
@@ -156,11 +155,9 @@ class BandejaEntradaController extends BackendController
             $qb->orWhere("$like LIKE '%$filter%'");
         }
         $qb->andWhere('Notificacion.deleted_at > :currentDate OR Notificacion.deleted_at IS NULL');
-
         $query = $qb->getQuery();
         $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $query->setHydrationMode(Query::HYDRATE_ARRAY);
-
         $paginator = new Paginator($query);
         $count = $paginator->count();
 

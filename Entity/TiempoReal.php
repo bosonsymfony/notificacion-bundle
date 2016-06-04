@@ -11,9 +11,16 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="not_tiempo_real")
  * @ORM\Entity(repositoryClass="UCI\Boson\NotificacionBundle\Entity\TiempoRealRepository")
  */
-class TiempoReal extends Notificacion
+class TiempoReal
 {
-
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
 
     /**
      * @var boolean
@@ -29,6 +36,11 @@ class TiempoReal extends Notificacion
      */
     private $user;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="UCI\Boson\NotificacionBundle\Entity\Notificacion", inversedBy="tiempoReales")
+     *  @ORM\JoinColumn(name="notificacion_id", referencedColumnName="id")
+     */
+    private $notificacion;
 
     /**
      * Set estado
@@ -90,4 +102,28 @@ class TiempoReal extends Notificacion
 
 
 
+
+    /**
+     * Set notificacion
+     *
+     * @param \UCI\Boson\NotificacionBundle\Entity\Notificacion $notificacion
+     *
+     * @return TiempoReal
+     */
+    public function setNotificacion(\UCI\Boson\NotificacionBundle\Entity\Notificacion $notificacion = null)
+    {
+        $this->notificacion = $notificacion;
+
+        return $this;
+    }
+
+    /**
+     * Get notificacion
+     *
+     * @return \UCI\Boson\NotificacionBundle\Entity\Notificacion
+     */
+    public function getNotificacion()
+    {
+        return $this->notificacion;
+    }
 }

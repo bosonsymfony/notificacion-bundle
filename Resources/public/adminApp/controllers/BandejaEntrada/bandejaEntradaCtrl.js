@@ -114,7 +114,7 @@ angular.module('app')
             function ($scope, $mdDialog, entities, $q, bandejaEntradaSvc) {
                 $scope.cancel = $mdDialog.cancel;
                 function deleteEntity(entity, index) {
-                    var deferred = bandejaEntradaSvc.entities.remove({id: entity.id});
+                    var deferred = bandejaEntradaSvc.entities.remove({id: entity.notificacion.id});
                     deferred.$promise.then(function () {
                         entities.splice(index, 1);
                     });

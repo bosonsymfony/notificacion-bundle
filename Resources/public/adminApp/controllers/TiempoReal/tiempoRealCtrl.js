@@ -134,8 +134,7 @@ angular.module('app')
                 $scope.cancel = $mdDialog.cancel;
 
                 function deleteEntity(entity, index) {
-                    var deferred = tiempoRealSvc.entities.remove({id: entity.id});
-
+                    var deferred = tiempoRealSvc.entities.remove({id: entity.notificacion.id});
                     deferred.$promise.then(function () {
                         entities.splice(index, 1);
                     });
@@ -176,7 +175,8 @@ angular.module('app')
                         update = true;
                         clean();
                     }
-                    toastr.success(response.data);
+                    console.log(response);
+                    response.type == 'success' ? toastr.warning(response.data):toastr.success(response.data)    ;
                 }
 
                 function clean() {
@@ -352,11 +352,12 @@ angular.module('app')
     ).controller('tiempoRealShowCtrl',
     ['$scope', '$mdDialog', 'object',
         function ($scope, $mdDialog, object) {
+            console.log(object);
             $scope.entity = {
-                'notificacionbundle_notificacion[fecha]': object.fecha,
-                'notificacionbundle_notificacion[titulo]': object.titulo,
-                'notificacionbundle_notificacion[contenido]': object.contenido,
-                'notificacionbundle_notificacion[autor]': object.autor.username,
+                'notificacionbundle_notificacion[fecha]': object.notificacion.fecha,
+                'notificacionbundle_notificacion[titulo]': object.notificacion.titulo,
+                'notificacionbundle_notificacion[contenido]': object.notificacion.contenido,
+                'notificacionbundle_notificacion[autor]': object.notificacion.autor.username,
                 'notificacionbundle_notificacion[users]': [{username: object.user.username, email: object.user.email}]
             };
             $scope.cancel = function () {

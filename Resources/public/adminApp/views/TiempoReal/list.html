@@ -73,9 +73,9 @@
             </thead>
             <tbody md-body>
             <tr md-row md-select="entity" md-auto-select ng-repeat="entity in entities.data">
-                <td md-cell="" ng-bind="entity.fecha"></td>
-                <td md-cell="" ng-bind="entity.titulo"></td>
-                <td md-cell="" ng-bind="entity.contenido"></td>
+                <td md-cell="" ng-bind="entity.notificacion.fecha"></td>
+                <td md-cell="" ng-bind="entity.notificacion.titulo"></td>
+                <td md-cell="" ng-bind="entity.notificacion.contenido"></td>
                 <td md-cell="" ng-bind="entity.estado"></td>
             </tr>
             </tbody>

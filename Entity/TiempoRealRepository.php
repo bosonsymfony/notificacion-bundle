@@ -1,6 +1,7 @@
 <?php
 
 namespace UCI\Boson\NotificacionBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\UserInterface;
 use UCI\Boson\NotificacionBundle\Exception\NotificacionNotUserValid;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
@@ -13,7 +14,8 @@ use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
  */
 class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function persistNotification(TiempoReal $entity){
+
+    public function persistNotification(Notificacion $entity){
         try
         {$this->_em->persist($entity);
         $this->_em->flush($entity);
@@ -36,25 +38,33 @@ class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
             $notified_users = array();
             $users = $object->getUsers();
             $roles = $object->getRoles();
+            $notificacion = new Notificacion();
+            $tipo =$this->_em->getRepository('NotificacionBundle:TipoNotificacion')->findOneByNombre('Tiempo Real');
+            $notificacion->setTitulo($object->getTitulo());
+            $notificacion->setTipo($tipo);
+            $notificacion->setContenido($object->getContenido());
+            $notificacion->setAutor($object->getAutor());
+            $notificacion->setFecha(new \DateTime());
+            if($users instanceof ArrayCollection){
+                $users = $users->toArray();
+            }
             foreach ($users as $user) {
-                if($user instanceof UserInterface){
-                    throw new NotificacionNotUserValid('Not valid User of Symfony2 to notificate');
-                }
-                $entity = $this->createEntity($object->getTitulo(),$object->getContenido(),$object->getAutor(),$user);
-                $this->persistNotification($entity);
-
+                $notificacion->addTiempoReale($this->createEntity($user,$notificacion));
                 $notified_users[] = $user->getUsername();
+            }
+            if($roles instanceof ArrayCollection){
+                $roles = $roles->toArray();
             }
             foreach ($roles as $role) {
                 $usersByRole = $role->getUsuarios();
-                foreach ($usersByRole as $item) {
+                foreach ($usersByRole->toArray() as $item) {
                     if(!in_array($item->getUsername(),$notified_users)){
-                        $entity = $this->createEntity($object->getTitulo(),$object->getContenido(),$object->getAutor(),$item);
-                        $this->persistNotification($entity);
+                        $notificacion->addTiempoReale($this->createEntity($item,$notificacion));
                         $notified_users[] = $item->getUsername();
                     }
                 }
             }
+            $this->persistNotification($notificacion);
             return $notified_users;
         }
         catch(\Exception $ex){
@@ -70,16 +80,12 @@ class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
      * @param $user
      * @return TiempoReal
      */
-    private function createEntity($titulo,$contenido,$autor,$user){
+    private function createEntity($user,$notificacion){
+
         $entity = new TiempoReal();
         $entity->setEstado(false);
-        $tipo =$this->_em->getRepository('NotificacionBundle:TipoNotificacion')->findOneByNombre('Tiempo Real');
-        $entity->setTitulo($titulo);
-        $entity->setTipo($tipo);
-        $entity->setContenido($contenido);
-        $entity->setAutor($autor);
         $entity->setUser($user);
-        $entity->setFecha(new \DateTime());
+        $entity->setNotificacion($notificacion);
         return $entity;
     }
 

@@ -26,27 +26,27 @@ class TiempoRealController extends BackendController
     private $listFields = array(
         'fields' => array(
             'id',
-            'fecha',
-            'titulo',
-            'contenido',
             'estado',
         ),
         'associations' => array(
-            'tipo' => array(
+            'notificacion' => array(
                 'fields' => array(
                     'id',
-                    'nombre',
+                    'fecha',
+                    'titulo',
+                    'contenido',
                 ),
-                'associations' => array()
-            ),
-            'autor' => array(
-                'fields' => array(
-                    'username',
-                    'email',
-                    'roles',
-                    'id'
+                'associations' => array(
+                    'autor' => array(
+                        'fields' => array(
+                            'username',
+                            'email',
+                            'roles',
+                            'id'
+                        ),
+                        'associations' => array()
+                    ),
                 ),
-                'associations' => array()
             ),
             'user' => array(
                 'fields' => array(
@@ -58,16 +58,12 @@ class TiempoRealController extends BackendController
                 'associations' => array()
             ),
         )
-
     );
 
     /**
      * @var array
      */
     private $searchFields = array(
-        'fecha' => 'datetime',
-        'titulo' => 'string',
-        'contenido' => 'text',
         'estado' => 'boolean',
     );
 
@@ -115,19 +111,21 @@ class TiempoRealController extends BackendController
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             /*llamo al registro de notificaciones en el repositorio*/
-            $arrayNotifUsers = $em->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
-            /* notifico con el servicio */
-            if (count($arrayNotifUsers) === 1) {
-                $respService = $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
-            } else {
-                $respService = $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
+//            $arrayNotifUsers = $em->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
+//            /* notifico con el servicio */
+//            if (count($arrayNotifUsers) === 1) {
+//                $respService = $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
+//            } else {
+//                $respService = $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
+//            }
+            $respService = $this->get('notificacion.tiemporeal')->sendNotification($entity);
+            if ($respService) {
+                $usersNotificated = implode(", ", $respService['users_notified']);
+                return new Response(json_encode(array("data" => $this->get("translator")->trans("message.notificacion_tr.create_success") . ". Se notificó a los siguientes usuarios: " . $usersNotificated, "type" => "warning")));
+
             }
-            if($respService)
-                return new Response('The TiempoReal was created successfully.'.$respService);
-            return  new Response(json_encode(array("data"=>$this->get("translator")->trans("message.notificacion_tr.create_fail"),"type"=>"warning")));
+            return new Response(json_encode(array("data" => $this->get("translator")->trans("message.notificacion_tr.create_fail"), "type" => "warning")));
         }
-
-
         $errors = $this->getAllErrorsMessages($form);
         return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
     }
@@ -227,16 +225,17 @@ class TiempoRealController extends BackendController
     {
 
         $em = $this->get('doctrine.orm.entity_manager');
-        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
-
+        $entity = $em->getRepository('NotificacionBundle:Notificacion','notificacion')->find($id);
         if (!$entity) {
             return new Response($this->get("translator")->trans("message.notificacion_tr.show_fail"), Response::HTTP_NOT_FOUND);
         }
-
-        $em->remove($entity);
-        $em->flush();
-
-        return new Response("The TiempoReal with id '$id' was deleted successfully.");
+        try {
+            $em->remove($entity);
+            $em->flush();
+        } catch (\Exception $ex) {
+            return new Response(json_encode(array('data' => "The TiempoReal with id '$id' was not deleted.", 'type' => 'error')));
+        }
+        return new Response(json_encode(array('data' => "The TiempoReal with id '$id' was deleted successfully.", 'type' => 'success')));
     }
 
     /**
@@ -274,11 +273,14 @@ class TiempoRealController extends BackendController
             $like = ($searchField !== 'string') ? "CAST(TiempoReal.$index AS TEXT)" : "LOWER(TiempoReal.$index)";
             $qb->orWhere("$like LIKE '%$filter%'");
         }
+        $qb->orWhere("CAST(notificacion.fecha AS TEXT) LIKE '%$filter%'");
+        $qb->orWhere("LOWER(notificacion.titulo) LIKE '%$filter%'");
+        $qb->orWhere("LOWER(notificacion.contenido) LIKE '%$filter%'");
 
         $query = $qb->getQuery();
-//        dump($query->getDQL());die;
         $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $query->setHydrationMode(Query::HYDRATE_ARRAY);
+        //dump($query->getDQL());die;
 
         $paginator = new Paginator($query);
         $count = $paginator->count();
@@ -337,6 +339,4 @@ class TiempoRealController extends BackendController
         }
         return $result;
     }
-
-
 }

@@ -40,12 +40,15 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
         $notified_users = array('id'=>array(),'email'=>array());
         $users = $object->getUsers();
         $roles = $object->getRoles();
+        if(!$users instanceof ArrayCollection){
+            throw new \Exception("Must has an ArrayCollection of Users");
+        }
         foreach ($users as $user) {
-            if($user instanceof UserInterface){
-                throw new NotificacionNotUserValid('Not valid User of Symfony2 to notificate');
-            }
             $notified_users['email'][] = $user->getEmail();
             $notified_users['id'][] = $user->getId();
+        }
+        if(!$roles instanceof ArrayCollection){
+            throw new \Exception("Must has an ArrayCollection of Roles");
         }
         foreach ($roles as $role) {
             $usersByRole = $role->getUsuarios();
