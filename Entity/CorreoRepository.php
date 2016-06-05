@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\User\UserInterface;
 use UCI\Boson\NotificacionBundle\Exception\NotificacionNotUserValid;
+use UCI\Boson\NotificacionBundle\Exception\NotValidUser;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
 
 /**
@@ -25,16 +26,12 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
      */
     public function persistFormNotification(SendNotMail $object)
     {
-        try {
             $notified_users = $this->getListUsersToNotify($object);
             $entity = $this->createEntity($object->getTitulo(), $object->getContenido(), $object->getAutor(), $object->getUsers(), $object->getAdjunto());
             $resp = $this->persistNotification($entity);
             if (is_nan($resp) === true)
                 return $resp;
             return array('users' => $notified_users['email'], 'id' => $resp);
-        } catch (\Exception $ex) {
-            return $ex->getMessage();
-        }
     }
 
     public function getListUsersToNotify(SendNotMail $object)
@@ -47,8 +44,12 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
         }
         if (is_array($users)) {
             foreach ($users as $user) {
-                $notified_users['email'][] = $user->getEmail();
-                $notified_users['id'][] = $user->getId();
+                if($user != null){
+                    $notified_users['email'][] = $user->getEmail();
+                    $notified_users['id'][] = $user->getId();
+                }else{
+                    throw  new NotValidUser();
+                }
             }
         } else {
             throw new \Exception("Must has an ArrayCollection or an array of Users");
@@ -68,10 +69,7 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
                     }
                 }
             }
-        } else {
-            throw new \Exception("Must has an ArrayCollection of Roles");
         }
-
         return $notified_users;
     }
 
