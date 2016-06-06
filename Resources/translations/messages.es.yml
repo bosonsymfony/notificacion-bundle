@@ -9,3 +9,4 @@ message:
         show_fail: 'No existe ninguna notificación con este identificador.'
         delete_success: "La notificación '$id' fue eliminada satisfactoriamente."
         delete_fail: "La notificación '$id' no fue eliminada."
+        userNotNull: "El autor no puede ser nulo para registrar una notificación"

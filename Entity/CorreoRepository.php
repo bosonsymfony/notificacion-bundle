@@ -106,6 +106,9 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
         $entity->setTitulo($titulo);
         $entity->setTipo($tipo);
         $entity->setContenido($contenido);
+        if($autor === null){
+            throw new \Exception("El autor no puede ser Null");
+        }
         $entity->setAutor($autor);
         foreach ($users as $user) {
             $entity->addUser($user);

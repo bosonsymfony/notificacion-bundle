@@ -45,6 +45,10 @@ class TiempoRealRepository extends \Doctrine\ORM\EntityRepository
         $notificacion->setTipo($tipo);
         $notificacion->setContenido($object->getContenido());
         $notificacion->setAutor($object->getAutor());
+
+        if($notificacion->getAutor() ===null ){
+            throw new \Exception("El autor no puede ser Null");
+        }
         $notificacion->setFecha(new \DateTime());
         if ($users instanceof ArrayCollection) {
             $users = $users->toArray();
