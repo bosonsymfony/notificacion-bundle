@@ -91,7 +91,7 @@ class NotificationTRService
                         ]]
             )->json();
         } catch (ConnectException $exc) {
-            return false;
+            return [];
         }
        return $resp;
 //        $result = $resp->then(

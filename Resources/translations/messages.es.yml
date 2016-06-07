@@ -4,9 +4,11 @@ message:
     post401: Necesitas autenticarte primero
 
     notificacion_tr:
-        create_fail: "No fue posible notificar,la notificación se registró en la bandeja de entrada"
+        create_fail: "No fue posible notificar,la notificación se registró en la bandeja de entrada."
+        create_fail_0_users_notif: "No se registraron notificaciones con los datos provistos."
         create_success: 'La notificación se registró satisfactoriamente.'
         show_fail: 'No existe ninguna notificación con este identificador.'
         delete_success: "La notificación '$id' fue eliminada satisfactoriamente."
         delete_fail: "La notificación '$id' no fue eliminada."
         userNotNull: "El autor no puede ser nulo para registrar una notificación"
+        unableTiFindEntity: "No se enontró ninguna notificación este identificador."

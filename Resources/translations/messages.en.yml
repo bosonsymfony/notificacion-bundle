@@ -5,8 +5,10 @@ message:
 
     notificacion_tr:
         create_fail: "Cant be posible to notify, the notification was registred in the inbox."
+        create_fail_0_users_notif: "Not notificactions registred with this data."
         create_success: 'The notification was created successfully.'
         show_fail: 'Unable to find a notificaction with this identifier.'
         delete_success: "The notification %d was deleted successfully."
         delete_fail: "The notification %d was not deleted."
         userNotNull: "The user can not be null for register the notification."
+        unableTiFindEntity: "Unable to find TiempoReal entity."

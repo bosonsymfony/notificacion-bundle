@@ -111,20 +111,15 @@ class TiempoRealController extends BackendController
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             /*llamo al registro de notificaciones en el repositorio*/
-//            $arrayNotifUsers = $em->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
-//            /* notifico con el servicio */
-//            if (count($arrayNotifUsers) === 1) {
-//                $respService = $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
-//            } else {
-//                $respService = $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
-//            }
             $respService = $this->get('notificacion.tiemporeal')->sendNotification($entity);
-            if ($respService) {
-                $usersNotificated = implode(", ", $respService['users_notified']);
-                return new Response(json_encode(array("data" => $this->get("translator")->trans("message.notificacion_tr.create_success") . ". Se notificó a los siguientes usuarios: " . $usersNotificated, "type" => "warning")));
+            if ($respService === false) {
+                return new Response(json_encode(array("data" => $this->get("translator")->trans("message.notificacion_tr.create_fail_0_users_notif"), "type" => "warning")),Response::HTTP_BAD_REQUEST);
 
+            } elseif (is_array($respService) && count($respService) === 0) {
+                return new Response(json_encode(array("data" => $this->get("translator")->trans("message.notificacion_tr.create_fail"), "type" => "warning")),Response::HTTP_BAD_REQUEST);
+            } else {
+                return new Response(json_encode(array("data" => $this->get("translator")->trans("message.notificacion_tr.create_success"), "type" => "success")),Response::HTTP_CREATED);
             }
-            return new Response(json_encode(array("data" => $this->get("translator")->trans("message.notificacion_tr.create_fail"), "type" => "warning")));
         }
         $errors = $this->getAllErrorsMessages($form);
         return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -225,7 +220,7 @@ class TiempoRealController extends BackendController
     {
 
         $em = $this->get('doctrine.orm.entity_manager');
-        $entity = $em->getRepository('NotificacionBundle:Notificacion','notificacion')->find($id);
+        $entity = $em->getRepository('NotificacionBundle:Notificacion', 'notificacion')->find($id);
         if (!$entity) {
             return new Response($this->get("translator")->trans("message.notificacion_tr.show_fail"), Response::HTTP_NOT_FOUND);
         }
@@ -233,9 +228,9 @@ class TiempoRealController extends BackendController
             $em->remove($entity);
             $em->flush();
         } catch (\Exception $ex) {
-            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'), $id), 'type' => 'error')));
         }
-        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'),$id), 'type' => 'success')));
+        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'), $id), 'type' => 'success')));
     }
 
     /**

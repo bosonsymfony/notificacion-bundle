@@ -26,27 +26,27 @@ class TiempoRealController extends BackendController
     private $listFields = array(
         'fields' => array(
             'id',
-            'fecha',
-            'titulo',
-            'contenido',
             'estado',
         ),
         'associations' => array(
-            'tipo' => array(
+            'notificacion' => array(
                 'fields' => array(
                     'id',
-                    'nombre',
+                    'fecha',
+                    'titulo',
+                    'contenido',
                 ),
-                'associations' => array()
-            ),
-            'autor' => array(
-                'fields' => array(
-                    'username',
-                    'email',
-                    'roles',
-                    'id'
+                'associations' => array(
+                    'autor' => array(
+                        'fields' => array(
+                            'username',
+                            'email',
+                            'roles',
+                            'id'
+                        ),
+                        'associations' => array()
+                    ),
                 ),
-                'associations' => array()
             ),
             'user' => array(
                 'fields' => array(
@@ -58,16 +58,12 @@ class TiempoRealController extends BackendController
                 'associations' => array()
             ),
         )
-
     );
 
     /**
      * @var array
      */
     private $searchFields = array(
-        'fecha' => 'datetime',
-        'titulo' => 'string',
-        'contenido' => 'text',
         'estado' => 'boolean',
     );
 
@@ -89,7 +85,7 @@ class TiempoRealController extends BackendController
         $limit = $request->get('limit', 5);
         $page = $request->get('page', 1);
         $order = $request->get('order', "id");
-        return $this->getResponseFormated($request,$this->PaginateResults($filter, $page, $limit, $order), 200);
+        return $this->getResponseFormated($request, $this->PaginateResults($filter, $page, $limit, $order), Response::HTTP_CREATED);
     }
 
     private function getResponseFormated(Request $request, $data, $code = Response::HTTP_OK)
@@ -109,6 +105,11 @@ class TiempoRealController extends BackendController
         return $response;
     }
 
+    private function trans($key)
+    {
+        return $this->trans($key);
+    }
+
     /**
      * Creates a new TiempoReal entity.
      *
@@ -126,22 +127,22 @@ class TiempoRealController extends BackendController
             /* obtengo el autor */
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
             if (is_null($secInfo['data']['userid'])) {
-                return $this->getResponseFormated($request,$this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
+                return $this->getResponseFormated($request, $this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
             }
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             /*llamo al registro de notificaciones en el repositorio*/
-            $arrayNotifUsers = $em->getRepository('NotificacionBundle:TiempoReal')->persistFormNotification($entity);
-            /* notifico con el servicio */
-            if (count($arrayNotifUsers) === 1) {
-                $this->get('notificacion.tiemporeal')->notifyByUser($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers[0]);
+            $respService = $this->get('notificacion.tiemporeal')->sendNotification($entity);
+            if ($respService === false) {
+                return $this->getResponseFormated($this->trans("message.notificacion_tr.create_fail_0_users_notif"), Response::HTTP_BAD_REQUEST);
+            } elseif (is_array($respService) && count($respService) === 0) {
+                return $this->getResponseFormated($this->trans("message.notificacion_tr.create_fail"), Response::HTTP_BAD_REQUEST);
             } else {
-                $this->get('notificacion.tiemporeal')->notifyByUsers($entity->getTitulo(), $entity->getContenido(), $arrayNotifUsers);
+                return $this->getResponseFormated($request, $this->trans("message.notificacion_tr.create_success"), Response::HTTP_CREATED);
             }
-            return $this->getResponseFormated($request, array("data" => 'The TiempoReal was created successfully.'), Response::HTTP_CREATED);
         }
         $errors = $this->getAllErrorsMessages($form);
-        return new Response($request,$errors, Response::HTTP_BAD_REQUEST);
+        return $this->getResponseFormated($request, $errors, Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -153,10 +154,10 @@ class TiempoRealController extends BackendController
      */
     private function createCreateForm(SendNotTiempoReal $model)
     {
-        $this->get("security.csrf.token_manager")->getToken($this->getParameter("secret"));
         $formNot = new TiempoRealServiceType();
+
         $form = $this->createForm($formNot, $model, array(
-            'method' => 'POST', "csrf_protection" => false, "allow_extra_fields" => true
+            'method' => 'POST',
         ));
         return $form;
     }
@@ -175,59 +176,10 @@ class TiempoRealController extends BackendController
         $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
 
         if (!$entity) {
-            return $this->getResponseFormated($request,'Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
+            return $this->getResponseFormated($request, $this->trans("message.notificacion_tr.unableTiFindEntity"), Response::HTTP_NOT_FOUND);
         }
-
-        return $this->getResponseFormated($request,$entity,Response::HTTP_OK);
+        return $this->getResponseFormated($request, $entity, Response::HTTP_OK);
     }
-//    /**
-//     * Creates a form to edit a TiempoReal entity.
-//     *
-//     * @param TiempoReal $entity The entity
-//     *
-//     * @return \Symfony\Component\Form\Form The form
-//     */
-//    private function createEditForm(TiempoReal $entity)
-//    {
-//        $form = $this->get('form.factory')->createNamedBuilder('notificacionbundle_notificacion', 'form', $entity, array(//'csrf_protection' => false
-//        ));
-//        foreach ($this->editFormFields as $index => $editFormField) {
-//            $form->add($editFormField);
-//        }
-//
-//        $form->setMethod('PUT');
-//
-//        return $form->getForm();
-//    }
-//
-//    /**
-//     * Edits an existing TiempoReal entity.
-//     *
-//     * @Route("/api/notificacion_services/notificacion/{id}", name="notificacion_update", options={"expose"=true})
-//     * @Method("PUT")
-//     */
-//    public function updateAction(Request $request, $id)
-//    {
-//        $em = $this->get('doctrine.orm.entity_manager');
-//
-//        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
-//
-//        if (!$entity) {
-//            return new Response('Unable to find TiempoReal entity.', Response::HTTP_NOT_FOUND);
-//        }
-//
-//        $editForm = $this->createEditForm($entity);
-//        $editForm->handleRequest($request);
-//
-//        if ($editForm->isValid()) {
-//            $em->flush();
-//
-//            return new Response('The Usuario was updated successfully.');
-//        }
-//
-//        $errors = $this->getAllErrorsMessages($editForm);
-//        return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
-//    }
 
     /**
      * Deletes a TiempoReal entity.
@@ -239,15 +191,17 @@ class TiempoRealController extends BackendController
     {
 
         $em = $this->get('doctrine.orm.entity_manager');
-        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
-
+        $entity = $em->getRepository('NotificacionBundle:Notificacion', 'notificacion')->find($id);
         if (!$entity) {
-            return  $this->getResponseFormated($request, array("data"=>'Unable to find TiempoReal entity.'), Response::HTTP_NOT_FOUND);
+            return $this->getResponseFormated($request, array("data" => $this->trans("message.notificacion_tr.unableTiFindEntity")), Response::HTTP_NOT_FOUND);
         }
-        $em->remove($entity);
-        $em->flush();
-
-        return $this->getResponseFormated($request,array("The TiempoReal with id '$id' was deleted successfully."),Response::HTTP_OK);
+        try {
+            $em->remove($entity);
+            $em->flush();
+        } catch (\Exception $ex) {
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'), $id), 'type' => 'error')));
+        }
+        return $this->getResponseFormated($request, array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'), $id), 'type' => 'success'), Response::HTTP_OK);
     }
 
 
@@ -270,7 +224,7 @@ class TiempoRealController extends BackendController
         $qb
             ->select($selectFields)
             ->from('NotificacionBundle:TiempoReal', 'TiempoReal')
-            ->orderBy('TiempoReal.' . $order, $direction)
+            //->orderBy('TiempoReal.' . $order, $direction)
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
@@ -286,10 +240,14 @@ class TiempoRealController extends BackendController
             $like = ($searchField !== 'string') ? "CAST(TiempoReal.$index AS TEXT)" : "LOWER(TiempoReal.$index)";
             $qb->orWhere("$like LIKE '%$filter%'");
         }
+        $qb->orWhere("CAST(notificacion.fecha AS TEXT) LIKE '%$filter%'");
+        $qb->orWhere("LOWER(notificacion.titulo) LIKE '%$filter%'");
+        $qb->orWhere("LOWER(notificacion.contenido) LIKE '%$filter%'");
 
         $query = $qb->getQuery();
         $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $query->setHydrationMode(Query::HYDRATE_ARRAY);
+        //dump($query->getDQL());die;
 
         $paginator = new Paginator($query);
         $count = $paginator->count();
