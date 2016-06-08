@@ -188,6 +188,8 @@ angular.module('app')
 
                 function clean() {
                     $scope.entity = {};
+                    $scope.selectedUsers = [];
+                    $scope.selectedRoles = [];
                 }
 
                 function error(errors) {
