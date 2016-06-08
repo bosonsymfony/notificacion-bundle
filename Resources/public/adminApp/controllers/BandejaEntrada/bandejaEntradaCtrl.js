@@ -3,19 +3,15 @@
  */
 angular.module('app')
     .controller('bandejaEntradaCtrl',
-        ['$scope', 'bandejaEntradaSvc', '$mdDialog',
-            function ($scope, bandejaEntradaSvc, $mdDialog) {
-
+        ['$scope', 'bandejaEntradaSvc', '$mdDialog','toastr',
+            function ($scope, bandejaEntradaSvc, $mdDialog,toastr) {
                 var bookmark;
-
                 $scope.selected = [];
-
                 $scope.filter = {
                     options: {
                         debounce: 500
                     }
                 };
-
                 $scope.query = {
                     filter: '',
                     limit: '5',
@@ -26,12 +22,14 @@ angular.module('app')
                 function getEntities(query) {
                     $scope.promise = bandejaEntradaSvc.entities.get(query || $scope.query, success).$promise;
                 }
-
                 function success(entities) {
                     $scope.entities = entities;
                     $scope.selected = [];
+                    console.log(entities);
+                    if(entities.count == 0 && entities.error !== undefined){
+                        toastr.error(entities.error);
+                    }
                 }
-
                 $scope.onPaginate = function (page, limit) {
                     getEntities(angular.extend({}, $scope.query, {page: page, limit: limit}));
                 };

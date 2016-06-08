@@ -19,10 +19,10 @@
             <div layout-gt-sm="row">
                 <md-input-container class="md-block" flex-gt-sm>
                     <label class="required">Titulo</label>
-                    <input type="text" name="notificacionbundle_notificacion[titulo]"
+                    <input type="text" name="titulo"
                            ng-model="entity['notificacionbundle_notificacion[titulo]']" required="required"
                            maxlength="255"/>
-
+                    <!--<span class="error" ng-show="form.notificacionbundle_notificacion_titulo.$error.required"> Required!</span>-->
                     <div ng-messages="errors.titulo">
                         <div ng-repeat="message in errors.titulo" ng-bind="message"></div>
                     </div>
@@ -31,7 +31,7 @@
             <div layout-gt-sm="row">
                 <md-input-container class="md-block" flex-gt-sm>
                     <label class="required">Contenido</label>
-                    <textarea name="notificacionbundle_notificacion[contenido]"
+                    <textarea name="contenido"
                               ng-model="entity['notificacionbundle_notificacion[contenido]']"
                               required="required"></textarea>
 
@@ -47,7 +47,7 @@
                           md-require-match="autocompleteUserRequireMatch">
                     <md-autocomplete
                             ng-model="inputUsers"
-                            md-input-name="notificacionbundle_notificacion[users]"
+                            md-input-name="users"
                             md-selected-item="selectedUserItem"
                             md-search-text="searchUserText"
                             md-items="item in queryUserSearch(searchUserText)"
@@ -70,7 +70,7 @@
                           md-require-match="autocompleteRoleRequireMatch">
                     <md-autocomplete
                             ng-model="inputRoles"
-                            md-input-name="notificacionbundle_notificacion[roles]"
+                            md-input-name="roles"
                             md-selected-item="selectedRoleItem"
                             md-search-text="searchRoleText"
                             md-items="item in queryRoleSearch(searchRoleText)"

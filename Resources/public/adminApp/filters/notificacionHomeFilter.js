@@ -16,6 +16,7 @@ angular.module('app')
     )
     .filter('ellipsis', function () {
         return function (text, length) {
+            console.log(text);
             if (text.length > length) {
                 return text.substr(0, length) + '...';
             }

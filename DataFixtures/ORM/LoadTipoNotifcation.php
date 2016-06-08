@@ -26,7 +26,7 @@ class LoadTipoNotifcation implements FixtureInterface{
      */
     function load(ObjectManager $manager)
     {
-        $tipos = array("Evento","Tiempo Real","Correo");
+        $tipos = array(TipoNotificacion::Evento,TipoNotificacion::TiempoReal,TipoNotificacion::Correo);
         foreach($tipos as $tipo){
             $tipoNew = new TipoNotificacion();
             $tipoNew->setNombre($tipo);

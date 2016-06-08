@@ -21,10 +21,6 @@ use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
 use UCI\Boson\TrazasBundle\EventListener\AccionListener;
 
 
-/**
- * Correo controller.
- * @Route("/notificacion_services/"
- */
 class CorreoServiceController extends BackendController
 {
     /**
@@ -92,7 +88,6 @@ class CorreoServiceController extends BackendController
         $page = $request->get('page', 1);
         $order = $request->get('order', "id");
         return $this->getResponseFormated($request,$this->PaginateResults($filter, $page, $limit, $order), Response::HTTP_CREATED);
-
     }
     private function trans($key){
         return $this->get("translator")->trans($key);

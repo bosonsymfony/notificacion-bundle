@@ -15,7 +15,10 @@ angular.module('app')
                         debounce: 500
                     }
                 };
-
+                $scope.dobleClick = function(row){
+                    $scope.selected = [row];
+                    $scope.showEntity();
+                }
                 $scope.query = {
                     filter: '',
                     limit: '5',

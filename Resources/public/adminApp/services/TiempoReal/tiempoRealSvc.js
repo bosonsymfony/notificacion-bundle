@@ -32,6 +32,11 @@ angular.module('app')
                         return $http.post(Routing.generate('notificacion_csrf_form', {}, true),{id_form:id_form}, {
                             ignoreLoadingBar: true
                         })
+                    },
+                    getTranslations: function () {
+                        return $http.get(Routing.generate('notificacion_validators_form', {}, true),{}, {
+                            ignoreLoadingBar: true
+                        })
                     }
                 };
             }

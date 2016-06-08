@@ -68,15 +68,13 @@
                 <th md-column="" data-md-order-by="fecha">Fecha</th>
                 <th md-column="" data-md-order-by="titulo">Titulo</th>
                 <th md-column="" data-md-order-by="contenido">Contenido</th>
-                <th md-column="" data-md-order-by="estado">Estado</th>
             </tr>
             </thead>
             <tbody md-body>
-            <tr md-row md-select="entity" md-auto-select ng-repeat="entity in entities.data">
-                <td md-cell="" ng-bind="entity.notificacion.fecha"></td>
-                <td md-cell="" ng-bind="entity.notificacion.titulo"></td>
-                <td md-cell="" ng-bind="entity.notificacion.contenido | ellipsis:40"></td>
-                <td md-cell="" ng-bind="entity.estado"></td>
+            <tr md-row md-select="entity" md-auto-select ng-repeat="entity in entities.data" >
+                <td md-cell="" ng-bind="entity.fecha" ng-dblclick="dobleClick(entity)"></td>
+                <td md-cell="" ng-bind="entity.titulo" ng-dblclick="dobleClick(entity)"></td>
+                <td md-cell="" ng-bind="entity.contenido | ellipsis:40" ng-dblclick="dobleClick(entity)"></td>
             </tr>
             </tbody>
         </table>

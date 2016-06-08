@@ -2,6 +2,7 @@
 
 namespace UCI\Boson\NotificacionBundle\Controller;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -44,7 +45,7 @@ class BandejaEntradaController extends BackendController
                         ),
                         'associations' => array()
                     ),
-                ),
+                )
             ),
             'user' => array(
                 'fields' => array(
@@ -79,12 +80,22 @@ class BandejaEntradaController extends BackendController
      */
     public function indexAction(Request $request)
     {
-        $user =$this->get("security.token_storage")->getToken()->getUser()->getId();
-        $filter = $request->get('filter', "");
-        $limit = $request->get('limit', 5);
-        $page = $request->get('page', 1);
-        $order = $request->get('order', "id");
-        return new Response($this->serialize($this->PaginateResults($filter, $page, $limit, $order,$user)), 200, array(
+        $securityContext = $this->container->get('security.authorization_checker');
+        if(!$securityContext->isGranted('IS_AUTHENTICATED_FULLY'))
+        {
+            $respuesta = json_encode(array('data'=>array(),'count'=>0,'error'=> $this->get('translator')->trans('message.bandejaentrada.errorAuth')));
+        }
+        else{
+            $token =$this->get("security.token_storage")->getToken();
+            $user = $token->getUser()->getId();
+            $filter = $request->get('filter', "");
+            $limit = $request->get('limit', 5);
+            $page = $request->get('page', 1);
+            $order = $request->get('order', "id");
+            $respuesta = $this->serialize($this->PaginateResults($filter, $page, $limit, $order,$user));
+
+        }
+        return new Response($respuesta, 200, array(
             'content-type' => 'application/json'
         ));
     }

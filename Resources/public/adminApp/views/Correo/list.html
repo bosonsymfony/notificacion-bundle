@@ -73,10 +73,10 @@
             </thead>
             <tbody md-body>
             <tr md-row md-select="entity" md-auto-select ng-repeat="entity in entities.data">
-                <td md-cell="" ng-bind="entity.fecha"></td>
-                <td md-cell="" ng-bind="entity.titulo"></td>
-                <td md-cell="" ng-bind="entity.contenido | ellipsis:40"></td>
-                <td md-cell="" ng-bind="entity.adjunto"></td>
+                <td md-cell="" ng-bind="entity.fecha" ng-dblclick="dobleClick(entity)"></td>
+                <td md-cell="" ng-bind="entity.titulo" ng-dblclick="dobleClick(entity)"></td>
+                <td md-cell="" ng-bind="entity.contenido | ellipsis:40" ng-dblclick="dobleClick(entity)"></td>
+                <td md-cell="" ng-bind="entity.adjunto" ng-dblclick="dobleClick(entity)"></td>
             </tr>
             </tbody>
         </table>

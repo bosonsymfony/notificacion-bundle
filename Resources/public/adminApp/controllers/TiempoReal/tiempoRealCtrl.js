@@ -5,37 +5,33 @@ angular.module('app')
     .controller('tiempoRealCtrl',
         ['$scope', 'tiempoRealSvc', '$mdDialog',
             function ($scope, tiempoRealSvc, $mdDialog) {
-
                 var bookmark;
-
                 $scope.selected = [];
-
                 $scope.filter = {
                     options: {
                         debounce: 500
                     }
                 };
-
                 $scope.query = {
                     filter: '',
                     limit: '5',
                     order: 'id',
                     page: 1
                 };
-
+                $scope.dobleClick = function(row){
+                    $scope.selected = [row];
+                    $scope.showEntity();
+                };
                 function getEntities(query) {
                     $scope.promise = tiempoRealSvc.entities.get(query || $scope.query, success).$promise;
                 }
-
                 function success(entities) {
                     $scope.entities = entities;
                     $scope.selected = [];
                 }
-
                 $scope.onPaginate = function (page, limit) {
                     getEntities(angular.extend({}, $scope.query, {page: page, limit: limit}));
                 };
-
                 $scope.onReorder = function (order) {
                     getEntities(angular.extend({}, $scope.query, {order: order}));
                 };
@@ -130,24 +126,18 @@ angular.module('app')
     .controller('tiempoRealDeleteCtrl',
         ['$scope', '$mdDialog', 'entities', '$q', 'tiempoRealSvc', '$http','toastr',
             function ($scope, $mdDialog, entities, $q, tiempoRealSvc, $http, toastr) {
-
                 $scope.cancel = $mdDialog.cancel;
-
                 function deleteEntity(entity, index) {
-                    var deferred = tiempoRealSvc.entities.remove({id: entity.notificacion.id});
+                    var deferred = tiempoRealSvc.entities.remove({id: entity.id});
                     deferred.$promise.then(function (response) {
                         entities.splice(index, 1);
                         response.type == 'success' ? toastr.success(response.data) : toastr.error(response.data);
-
                     });
-
                     return deferred.$promise;
                 }
-
                 function onComplete() {
                     $mdDialog.hide();
                 }
-
                 $scope.delete = function () {
                     $q.all(entities.forEach(deleteEntity)).then(onComplete);
                 }
@@ -158,10 +148,11 @@ angular.module('app')
         ['$scope', '$mdDialog', 'tiempoRealSvc', 'toastr',
             function ($scope, $mdDialog, tiempoRealSvc, toastr) {
 
+                //tiempoRealSvc.getTranslations().then(function (response) {
+                //    console.log(response);
+                //});
                 var update = false;
-
                 var hide = true;
-
                 $scope.cancel = function () {
                     if (update) {
                         return $mdDialog.hide();
@@ -169,7 +160,6 @@ angular.module('app')
                         return $mdDialog.cancel();
                     }
                 };
-
                 function success(response) {
                     if (hide) {
                         $mdDialog.hide();
@@ -177,22 +167,18 @@ angular.module('app')
                         update = true;
                         clean();
                     }
-                    response.type == 'success' ? toastr.warning(response.data):toastr.success(response.data)    ;
+                    response.type == 'success' ? toastr.success(response.data):  toastr.warning(response.data)  ;
                 }
-
                 function clean() {
                     $scope.entity = {};
                 }
-
                 function error(errors) {
                     $scope.errors = errors.data;
                     if (errors.status === 401) {
                         toastr.error(errors.data, 'HOla', {timeOut: 2500});
                     }
                 }
-
                 function addEntity() {
-
                     if ($scope.form.$valid) {
                         $scope.entity['notificacionbundle_notificacion[users]'] = $scope.selectedUsers.map(function (user) {
                             return user.id;
@@ -201,31 +187,24 @@ angular.module('app')
                             return role.id;
                         });
                         tiempoRealSvc.getCsrfToken('notificacion').then(function (data) {
-                            console.log(data.data);
                             $scope.entity['notificacionbundle_notificacion[_token]'] = data.data;
                             tiempoRealSvc.entities.save($scope.entity, success, error);
                             }
                         )
                     }
                 }
-
                 $scope.accept = function () {
                     hide = true;
                     addEntity();
                 };
-
                 $scope.apply = function () {
                     hide = false;
                     addEntity();
                 };
-
                 $scope.errors = {};
-
                 /**
                  * choice dialog
                  */
-
-
                 $scope.readonly = false;
                 $scope.selectedUserItem = null;
                 $scope.searchUserText = null;
@@ -261,7 +240,6 @@ angular.module('app')
                             });
                         });
                 }
-
                 /**
                  * choice dialog
                  */
@@ -303,12 +281,6 @@ angular.module('app')
                             });
                         });
                 }
-
-                /**
-                 * choice dialog
-                 */
-
-
             }
         ]
     )
@@ -324,25 +296,20 @@ angular.module('app')
                     //'notificacionbundle_notificacion[_token]': object._token,
                 };
 
-
                 $scope.cancel = function () {
                     return $mdDialog.cancel();
                 };
-
                 function success(response) {
                     $mdDialog.hide();
                 }
-
                 function error(errors) {
                     $scope.errors = errors.data;
                 }
-
                 function updateEntity() {
                     if ($scope.form.$valid) {
                         tiempoRealSvc.update.save({id: object.id}, angular.extend({}, $scope.entity, {_method: 'PUT'}), success, error);
                     }
                 }
-
                 $scope.accept = function () {
                     updateEntity();
                 };
@@ -351,13 +318,14 @@ angular.module('app')
     ).controller('tiempoRealShowCtrl',
     ['$scope', '$mdDialog', 'object',
         function ($scope, $mdDialog, object) {
-            console.log(object);
             $scope.entity = {
-                'notificacionbundle_notificacion[fecha]': object.notificacion.fecha,
-                'notificacionbundle_notificacion[titulo]': object.notificacion.titulo,
-                'notificacionbundle_notificacion[contenido]': object.notificacion.contenido,
-                'notificacionbundle_notificacion[autor]': object.notificacion.autor.username,
-                'notificacionbundle_notificacion[users]': [{username: object.user.username, email: object.user.email}]
+                'notificacionbundle_notificacion[fecha]': object.fecha,
+                'notificacionbundle_notificacion[titulo]': object.titulo,
+                'notificacionbundle_notificacion[contenido]': object.contenido,
+                'notificacionbundle_notificacion[autor]': object.autor.username,
+                'notificacionbundle_notificacion[users]': object.tiempoReales.map( function (item) {
+                    return {username: item.user.username, email: item.user.email};
+                })
             };
             $scope.cancel = function () {
                 return $mdDialog.cancel();

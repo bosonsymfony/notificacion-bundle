@@ -12,3 +12,5 @@ message:
         delete_fail: "The notification %d was not deleted."
         userNotNull: "The user can not be null for register the notification."
         unableTiFindEntity: "Unable to find TiempoReal entity."
+    bandejaentrada:
+        errorAuth: "Authentication is required."

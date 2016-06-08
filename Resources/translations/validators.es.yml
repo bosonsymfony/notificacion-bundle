@@ -1,0 +1,3 @@
+notificacion:
+    asserts:
+        NotNull: Este campo no puede ser nulo.

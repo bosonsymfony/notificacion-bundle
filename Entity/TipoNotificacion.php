@@ -13,6 +13,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TipoNotificacion
 {
+
+    const TiempoReal = 'Tiempo Real';
+    const Correo = 'Correo';
+    const Evento = 'Evento';
+
     /**
      * @var integer
      *

@@ -1,0 +1,3 @@
+notificacion:
+    asserts:
+        NotNull: This value should not be null.
