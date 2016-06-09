@@ -2,6 +2,7 @@
 
 namespace UCI\Boson\NotificacionBundle\Controller;
 
+
 use UCI\Boson\BackendBundle\Controller\BackendController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 

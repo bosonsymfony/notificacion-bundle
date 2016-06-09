@@ -95,7 +95,6 @@ class CorreoController extends BackendController
             'content-type' => 'application/json'
         ));
     }
-
     /**
      * Creates a new Correo entity.
      *

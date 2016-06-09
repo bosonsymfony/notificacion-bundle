@@ -22,7 +22,6 @@ class NotificacionController extends BackendController
         return $this->render("NotificacionBundle:Default:index.html.twig",array("securityInf"=>$securityInf));
     }
 
-
     /**
      * Obtiene el token para que los formularios de angular trabajen.
      * 

@@ -2,6 +2,7 @@
 
 namespace UCI\Boson\NotificacionBundle\Controller;
 
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\Query;
