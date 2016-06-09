@@ -1,4 +1,4 @@
-message:
+notificacion:
     get404: The recurso notificación con el id especificado no fué encontrado
     get403: he recurso notificación con el  %s está prohibido
     post401: Necesitas autenticarte primero
@@ -11,6 +11,8 @@ message:
         delete_success: "La notificación %d fue eliminada satisfactoriamente."
         delete_fail: "La notificación %d no fue eliminada."
         userNotNull: "El autor no puede ser nulo para registrar una notificación"
-        unableTiFindEntity: "No se enontró ninguna notificación este identificador."
+        unableTiFindEntity: "No se enontró ninguna notificación con este identificador."
     bandejaentrada:
         errorAuth: "Necesitas autenticarte primero."
+    notificacion_correo:
+        create_fail: 'No se realizó correctamente la operación.'
