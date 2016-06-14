@@ -78,7 +78,7 @@ class CorreoServiceController extends BackendController
     /**
      * Lists all Correo entities.
      *
-     * @Route("/notificacionmail/", name="notificacionmail", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/", name="notificacionmail", options={"expose"=true})
      * @Method("GET")
      */
     public function indexAction(Request $request)
@@ -96,7 +96,7 @@ class CorreoServiceController extends BackendController
     /**
      * Creates a new Correo entity.
      *
-     * @Route("/notificacionmail/", name="notificacionmail_create", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/", name="notificacionmail_create", options={"expose"=true})
      * @Method("POST")
      */
     public function createAction(Request $request)
@@ -107,13 +107,13 @@ class CorreoServiceController extends BackendController
         if ($form->isValid()) {
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
             if (is_null($secInfo['data']['userid'])) {
-                return new Response($this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
+                return new Response($this->get('translator')->trans('notificacion.post401'), Response::HTTP_UNAUTHORIZED);
             }
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             $resp = $this->get('notificacion.correo')->sendNotification($entity);
             if ($resp !== 0)
-                return $this->getResponseFormated($request,array("data" => $this->trans("message.notificacion_tr.create_success"), "type" => "success"),Response::HTTP_CREATED);
+                return $this->getResponseFormated($request,array("data" => $this->trans("notificacion.notificacion_tr.create_success"), "type" => "success"),Response::HTTP_CREATED);
             return new Response(json_encode(array('data' => 'No se realizó correctamente la operación')), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $errors = $this->getAllErrorsMessages($form);
@@ -156,7 +156,7 @@ class CorreoServiceController extends BackendController
     /**
      * Finds and displays a Correo entity.
      *
-     * @Route("/notificacionmail/{id}", name="notificacionmail_show", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/{id}", name="notificacionmail_show", options={"expose"=true})
      * @Method("GET")
      */
     public function showAction($id)
@@ -185,7 +185,7 @@ class CorreoServiceController extends BackendController
     /**
      * Deletes a Correo entity.
      *
-     * @Route("/notificacionmail/{id}", name="notificacionmail_delete", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/{id}", name="notificacionmail_delete", options={"expose"=true})
      * @Method("DELETE")
      */
     public function deleteAction($id)
@@ -202,9 +202,9 @@ class CorreoServiceController extends BackendController
             $em->remove($entity);
             $em->flush();
         } catch (\Exception $ex) {
-            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
         }
-        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'),$id), 'type' => 'success')));
+        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_success'),$id), 'type' => 'success')));
 
     }
 

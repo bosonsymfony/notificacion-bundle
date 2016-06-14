@@ -98,7 +98,8 @@
             <div layout-gt-lg="row" class="md-block">
                 <lf-ng-md-file-input lf-files='files'
                                      lf-browse-label="Buscar"
-                                     lf-placeholder="Seleccione un archivo">
+                                     lf-placeholder="Seleccione un archivo"
+                                     lf-api="api">
                 </lf-ng-md-file-input>
                 <div ng-messages="errors.adjunto">
                     <div ng-repeat="message in errors.adjunto" ng-bind="message"></div>

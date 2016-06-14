@@ -98,24 +98,24 @@ angular.module('app')
                                             ]
                                     )
                                 })
-                                .state('notificacion.notificacion', {
-url: '/notificacion',
-templateUrl: '{{ asset('bundles/notificacion/adminApp/views/Notificacion/list.html')|raw }}',
-controller: 'notificacionCtrl',
-data: {
-title: 'Notificacion'
-},
-resolve: load(
-[
-{
-files: [
-'{{ asset('bundles/notificacion/adminApp/controllers/Notificacion/notificacionCtrl.js')|raw }}',
-'{{ asset('bundles/notificacion/adminApp/services/Notificacion/notificacionSvc.js')|raw }}'
-]
-}
-]
-)
-})
+                                {#.state('notificacion.notificacion', {#}
+{#url: '/notificacion',#}
+{#templateUrl: '{{ asset('bundles/notificacion/adminApp/views/Notificacion/list.html')|raw }}',#}
+{#controller: 'notificacionCtrl',#}
+{#data: {#}
+{#title: 'Notificacion'#}
+{#},#}
+{#resolve: load(#}
+{#[#}
+{#{#}
+{#files: [#}
+{#'{{ asset('bundles/notificacion/adminApp/controllers/Notificacion/notificacionCtrl.js')|raw }}',#}
+{#'{{ asset('bundles/notificacion/adminApp/services/Notificacion/notificacionSvc.js')|raw }}'#}
+{#]#}
+{#}#}
+{#]#}
+{#)#}
+{#})#}
 
                                 .state('notificacion.homepage', {
                                     url: '/home',
@@ -126,14 +126,6 @@ files: [
                                     },
                                     resolve: load(
                                             [
-                                                {
-                                                    name: 'hljs',
-                                                    files: [
-                                                        '{{ asset('bundles/backend/lib/highlight/highlight.pack.js')|raw }}',
-                                                        '{{ asset('bundles/backend/lib/highlight/styles/androidstudio.css')|raw }}',
-                                                        '{{ asset('bundles/backend/node_modules/angular-highlightjs/build/angular-highlightjs.js')|raw }}'
-                                                    ]
-                                                },
                                                 {
                                                     files: [
                                                         '{{ asset('bundles/notificacion/adminApp/services/notificacionHomeSvc.js')|raw }}',

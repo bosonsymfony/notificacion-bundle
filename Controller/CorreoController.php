@@ -109,14 +109,14 @@ class CorreoController extends BackendController
         if ($form->isValid()) {
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
             if (is_null($secInfo['data']['userid'])) {
-                return new Response($this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
+                return new Response($this->get('translator')->trans('notificacion.post401'), Response::HTTP_UNAUTHORIZED);
             }
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             $resp = $this->get('notificacion.correo')->sendNotification($entity);
             if ($resp !== 0)
-                return new Response(json_encode(array('data' => ' Se realizó correctamente la operación.')));
-            return new Response(json_encode(array('data' => 'No se realizó correctamente la operación')), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return new Response(json_encode(array('data' => $this->get('translator')->trans('notificacion.notificacion_tr.create_success'),'type'=>'success')));
+            return new Response(json_encode(array('data' =>  $this->get('translator')->trans('notificacion.notificacion_correo.create_fail'),'type'=>'warning')), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $errors = $this->getAllErrorsMessages($form);
         return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -239,10 +239,9 @@ class CorreoController extends BackendController
             $em->remove($entity);
             $em->flush();
         } catch (\Exception $ex) {
-            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
         }
-        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'),$id), 'type' => 'success')));
-
+        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_success'),$id), 'type' => 'success')));
     }
 
     /**

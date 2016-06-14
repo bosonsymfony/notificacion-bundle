@@ -190,6 +190,7 @@ angular.module('app')
                     $scope.entity = {};
                     $scope.selectedUsers = [];
                     $scope.selectedRoles = [];
+                    $scope.api.removeAll();
                 }
 
                 function error(errors) {
