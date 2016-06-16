@@ -15,12 +15,16 @@ use Symfony\Component\HttpFoundation\Response;
 use UCI\Boson\BackendBundle\Controller\BackendController;
 use UCI\Boson\NotificacionBundle\Entity\Correo;
 use UCI\Boson\NotificacionBundle\Form\CorreoEntityType;
+use UCI\Boson\NotificacionBundle\Form\CorreoServiceType;
 use UCI\Boson\NotificacionBundle\Form\CorreoType;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotMail;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
 use UCI\Boson\TrazasBundle\EventListener\AccionListener;
 
-
+/**
+ * CorreoServiceController. Controlador de los servicios REST para notificar.
+ *
+ */
 class CorreoServiceController extends BackendController
 {
     /**
@@ -78,7 +82,7 @@ class CorreoServiceController extends BackendController
     /**
      * Lists all Correo entities.
      *
-     * @Route("/notificacion_services/notificacionmail/", name="notificacionmail", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/", name="notificacionmail_services", options={"expose"=true})
      * @Method("GET")
      */
     public function indexAction(Request $request)
@@ -96,11 +100,12 @@ class CorreoServiceController extends BackendController
     /**
      * Creates a new Correo entity.
      *
-     * @Route("/notificacion_services/notificacionmail/", name="notificacionmail_create", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/", name="notificacionmail_services_create", options={"expose"=true})
      * @Method("POST")
      */
     public function createAction(Request $request)
     {
+
         $entity = new SendNotMail();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
@@ -113,8 +118,8 @@ class CorreoServiceController extends BackendController
             $entity->setAutor($autor);
             $resp = $this->get('notificacion.correo')->sendNotification($entity);
             if ($resp !== 0)
-                return $this->getResponseFormated($request,array("data" => $this->trans("notificacion.notificacion_tr.create_success"), "type" => "success"),Response::HTTP_CREATED);
-            return new Response(json_encode(array('data' => 'No se realizó correctamente la operación')), Response::HTTP_INTERNAL_SERVER_ERROR);
+                return $this->getResponseFormated($request,$this->trans("notificacion.notificacion_tr.create_success"),Response::HTTP_CREATED);
+            return $this->getResponseFormated($request,$this->trans("notificacion.notificacion_tr.create_fail"),Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $errors = $this->getAllErrorsMessages($form);
         return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -146,9 +151,10 @@ class CorreoServiceController extends BackendController
      */
     private function createCreateForm(SendNotMail $model)
     {
-        $formMail = new CorreoType();
+        $formMail = new CorreoServiceType();
         $form = $this->createForm($formMail, $model, array(
             'method' => 'POST',
+            'csrf_protection'=>false
         ));
         return $form;
     }
@@ -156,7 +162,7 @@ class CorreoServiceController extends BackendController
     /**
      * Finds and displays a Correo entity.
      *
-     * @Route("/notificacion_services/notificacionmail/{id}", name="notificacionmail_show", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/{id}", name="notificacionmail_services_show", options={"expose"=true})
      * @Method("GET")
      */
     public function showAction($id)
@@ -185,10 +191,10 @@ class CorreoServiceController extends BackendController
     /**
      * Deletes a Correo entity.
      *
-     * @Route("/notificacion_services/notificacionmail/{id}", name="notificacionmail_delete", options={"expose"=true})
+     * @Route("/notificacion_services/notificacionmail/{id}", name="notificacionmail_services_delete", options={"expose"=true})
      * @Method("DELETE")
      */
-    public function deleteAction($id)
+    public function deleteAction(Request $request,$id)
     {
         $em = $this->get('doctrine.orm.entity_manager');
         $entity = $em->getRepository('NotificacionBundle:Correo')->find($id);
@@ -202,10 +208,9 @@ class CorreoServiceController extends BackendController
             $em->remove($entity);
             $em->flush();
         } catch (\Exception $ex) {
-            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
+            return $this->getResponseFormated($request,sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_fail'),$id),Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_success'),$id), 'type' => 'success')));
-
+        return  $this->getResponseFormated($request,sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_success'),$id),Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     /**

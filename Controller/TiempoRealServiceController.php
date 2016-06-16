@@ -8,17 +8,20 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\Tests\Model;
+use Symfony\Component\Translation\MessageCatalogue;
 use UCI\Boson\BackendBundle\Controller\BackendController;
 use UCI\Boson\NotificacionBundle\Entity\TiempoReal;
+use UCI\Boson\NotificacionBundle\Entity\TipoNotificacion;
 use UCI\Boson\NotificacionBundle\Form\Model\SendNotTiempoReal;
 use UCI\Boson\NotificacionBundle\Form\TiempoRealServiceType;
 use UCI\Boson\NotificacionBundle\Form\TiempoRealType;
 
 /**
- * TiempoReal controller. Clase controladora que se encarga de
+ * TiempoReal controller. Clase controladora que se encarga de brindar servicios REST para notificar.
  *
  */
-class TiempoRealController extends BackendController
+class TiempoRealServiceController extends BackendController
 {
     /**
      * @var array
@@ -26,37 +29,17 @@ class TiempoRealController extends BackendController
     private $listFields = array(
         'fields' => array(
             'id',
-            'estado',
+            'fecha',
+            'titulo',
+            'contenido',
         ),
         'associations' => array(
-            'notificacion' => array(
-                'fields' => array(
-                    'id',
-                    'fecha',
-                    'titulo',
-                    'contenido',
-                ),
-                'associations' => array(
-                    'autor' => array(
-                        'fields' => array(
-                            'username',
-                            'email',
-                            'roles',
-                            'id'
-                        ),
-                        'associations' => array()
-                    ),
-                ),
-            ),
-            'user' => array(
-                'fields' => array(
-                    'username',
-                    'email',
-                    'roles',
-                    'id'
-                ),
-                'associations' => array()
-            ),
+            'tipo' => array(
+            'fields' => array(
+                'id',
+                'nombre'),
+            'associations' => array()
+        ),
         )
     );
 
@@ -64,7 +47,10 @@ class TiempoRealController extends BackendController
      * @var array
      */
     private $searchFields = array(
-        'estado' => 'boolean',
+        'fecha' => 'date',
+        'titulo' => 'string',
+        'contenido' => 'string',
+        'id' => 'integer'
     );
 
     /**
@@ -76,7 +62,7 @@ class TiempoRealController extends BackendController
     /**
      * Lists all TiempoReal entities.
      *
-     * @Route("/api/notificacion_services/notificacion/", name="notificacion", options={"expose"=true})
+     * @Route("/notificacion_services/notificacion/", name="notificacion_service", options={"expose"=true})
      * @Method("GET")
      */
     public function indexAction(Request $request)
@@ -107,18 +93,17 @@ class TiempoRealController extends BackendController
 
     private function trans($key)
     {
-        return $this->trans($key);
+        return $this->get('translator')->trans($key);
     }
 
     /**
      * Creates a new TiempoReal entity.
      *
-     * @Route("/api/notificacion_services/notificacion/", name="notificacion_create", options={"expose"=true})
+     * @Route("/notificacion_services/notificacion/", name="notificacion_service_create", options={"expose"=true})
      * @Method("POST")
      */
     public function createAction(Request $request)
     {
-
         $entity = new SendNotTiempoReal();
         $form = $this->createCreateForm($entity);
         $form->handleRequest($request);
@@ -127,18 +112,18 @@ class TiempoRealController extends BackendController
             /* obtengo el autor */
             $secInfo = $this->get('notificacion.notification')->getUserSecurityInfo();
             if (is_null($secInfo['data']['userid'])) {
-                return $this->getResponseFormated($request, $this->get('translator')->trans('message.post401'), Response::HTTP_UNAUTHORIZED);
+                return $this->getResponseFormated($request, $this->get('translator')->trans('notificacion.post401'), Response::HTTP_UNAUTHORIZED);
             }
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             /*llamo al registro de notificaciones en el repositorio*/
             $respService = $this->get('notificacion.tiemporeal')->sendNotification($entity);
             if ($respService === false) {
-                return $this->getResponseFormated($this->trans("message.notificacion_tr.create_fail_0_users_notif"), Response::HTTP_BAD_REQUEST);
+                return $this->getResponseFormated($this->trans("notificacion.notificacion_tr.create_fail_0_users_notif"), Response::HTTP_BAD_REQUEST);
             } elseif (is_array($respService) && count($respService) === 0) {
-                return $this->getResponseFormated($this->trans("message.notificacion_tr.create_fail"), Response::HTTP_BAD_REQUEST);
+                return $this->getResponseFormated($request,$this->trans("notificacion.notificacion_tr.create_fail"), Response::HTTP_BAD_REQUEST);
             } else {
-                return $this->getResponseFormated($request, $this->trans("message.notificacion_tr.create_success"), Response::HTTP_CREATED);
+                return $this->getResponseFormated($request, $this->trans("notificacion.notificacion_tr.create_success"), Response::HTTP_CREATED);
             }
         }
         $errors = $this->getAllErrorsMessages($form);
@@ -158,6 +143,7 @@ class TiempoRealController extends BackendController
 
         $form = $this->createForm($formNot, $model, array(
             'method' => 'POST',
+            'csrf_protection'=> false
         ));
         return $form;
     }
@@ -166,17 +152,26 @@ class TiempoRealController extends BackendController
     /**
      * Finds and displays a TiempoReal entity.
      *
-     * @Route("/api/notificacion_services/notificacion/{id}", name="notificacion_show", options={"expose"=true})
+     * @Route("/notificacion_services/notificacion/{id}", name="notificacion_service_show", options={"expose"=true})
      * @Method("GET")
      */
     public function showAction(Request $request, $id)
     {
         $em = $this->get('doctrine.orm.entity_manager');
 
-        $entity = $em->getRepository('NotificacionBundle:TiempoReal')->find($id);
-
-        if (!$entity) {
-            return $this->getResponseFormated($request, $this->trans("message.notificacion_tr.unableTiFindEntity"), Response::HTTP_NOT_FOUND);
+        $qb = $em->createQueryBuilder()->select('notificacion, tiempoReales','partial autor.{username,id,email}','partial users.{id,username,email}')
+                ->from('NotificacionBundle:Notificacion','notificacion')
+                ->join('notificacion.autor','autor')
+                ->join('notificacion.tiempoReales','tiempoReales')
+                ->join('tiempoReales.user','users')
+                ->where('notificacion.id = :id')
+                ->setParameter('id',$id);
+                $query = $qb->getQuery();
+                $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
+                $query->setHydrationMode(Query::HYDRATE_ARRAY);
+                $entity = $query->getArrayResult();
+        if (!$entity[0]) {
+            return $this->getResponseFormated($request, $this->trans("notificacion.notificacion_tr.unableTiFindEntity"), Response::HTTP_NOT_FOUND);
         }
         return $this->getResponseFormated($request, $entity, Response::HTTP_OK);
     }
@@ -184,7 +179,7 @@ class TiempoRealController extends BackendController
     /**
      * Deletes a TiempoReal entity.
      *
-     * @Route("/api/notificacion_services/notificacion/{id}", name="notificacion_delete", options={"expose"=true})
+     * @Route("/notificacion_services/notificacion/{id}", name="notificacion_service_delete", options={"expose"=true})
      * @Method("DELETE")
      */
     public function deleteAction(Request $request, $id)
@@ -193,15 +188,15 @@ class TiempoRealController extends BackendController
         $em = $this->get('doctrine.orm.entity_manager');
         $entity = $em->getRepository('NotificacionBundle:Notificacion', 'notificacion')->find($id);
         if (!$entity) {
-            return $this->getResponseFormated($request, array("data" => $this->trans("message.notificacion_tr.unableTiFindEntity")), Response::HTTP_NOT_FOUND);
+            return $this->getResponseFormated($request, array("data" => $this->trans("notificacion.notificacion_tr.unableTiFindEntity")), Response::HTTP_NOT_FOUND);
         }
         try {
             $em->remove($entity);
             $em->flush();
         } catch (\Exception $ex) {
-            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'), $id), 'type' => 'error')));
+            return new Response(json_encode(sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_fail'), $id)));
         }
-        return $this->getResponseFormated($request, array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'), $id), 'type' => 'success'), Response::HTTP_OK);
+        return $this->getResponseFormated($request, sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_success'), $id), Response::HTTP_OK);
     }
 
 
@@ -215,39 +210,30 @@ class TiempoRealController extends BackendController
     public function PaginateResults($filter = "", $page = 1, $limit = 5, $order = "id")
     {
         $em = $this->get('doctrine.orm.entity_manager');
-        $selectFields = "partial TiempoReal.{" . implode(', ', $this->listFields['fields']) . "}";
-        $selectAssociations = $this->generateSelect($this->listFields['associations'], 'TiempoReal');
+        $selectFields = "partial Notificacion.{" . implode(', ', $this->listFields['fields']) . "}";
+        $selectAssociations = $this->generateSelect($this->listFields['associations'], 'Notificacion');
         $qb = $em->createQueryBuilder();
 
         list($limit, $order, $direction) = $this->transformQuery($limit, $order);
 
-        $qb
-            ->select($selectFields)
-            ->from('NotificacionBundle:TiempoReal', 'TiempoReal')
-            //->orderBy('TiempoReal.' . $order, $direction)
+
+         $qb->select($selectFields)
+            ->from('NotificacionBundle:Notificacion', 'Notificacion')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
+        $qb->addSelect('tipo');
+//
+        $qb->innerJoin('Notificacion.tipo','tipo');
 
-        foreach ($selectAssociations['select'] as $selectAssociation) {
-            $qb->addSelect($selectAssociation);
-        }
+        $qb->where("CAST(Notificacion.fecha AS TEXT) LIKE '%$filter%' OR LOWER(Notificacion.titulo) LIKE '%$filter%' OR LOWER(Notificacion.contenido) LIKE '%$filter%'" );
+        $qb->andWhere("tipo.nombre = :noTiempoReal");
+        $qb->setParameter('noTiempoReal', TipoNotificacion::TiempoReal);
 
-        foreach ($selectAssociations['join'] as $index => $selectAssociation) {
-            $qb->leftJoin($selectAssociation, $index);
-        }
-
-        foreach ($this->searchFields as $index => $searchField) {
-            $like = ($searchField !== 'string') ? "CAST(TiempoReal.$index AS TEXT)" : "LOWER(TiempoReal.$index)";
-            $qb->orWhere("$like LIKE '%$filter%'");
-        }
-        $qb->orWhere("CAST(notificacion.fecha AS TEXT) LIKE '%$filter%'");
-        $qb->orWhere("LOWER(notificacion.titulo) LIKE '%$filter%'");
-        $qb->orWhere("LOWER(notificacion.contenido) LIKE '%$filter%'");
-
+//
+//        $qb->groupBy('notificacion.id');
         $query = $qb->getQuery();
-        $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
+//        $query->setHint(Query::HINT_FORCE_PARTIAL_LOAD, true);
         $query->setHydrationMode(Query::HYDRATE_ARRAY);
-        //dump($query->getDQL());die;
 
         $paginator = new Paginator($query);
         $count = $paginator->count();
@@ -306,6 +292,4 @@ class TiempoRealController extends BackendController
         }
         return $result;
     }
-
-
 }
