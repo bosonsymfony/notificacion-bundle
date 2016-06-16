@@ -6,20 +6,23 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class CorreoControllerTest extends WebTestCase
 {
-    /*
+
     public function testCompleteScenario()
     {
         // Create a new client to browse the application
         $client = static::createClient();
 
         // Create a new entry in the database
-        $crawler = $client->request('GET', '/notificacionmail/');
+        $crawler = $client->request('GET', 'backend#/notificacion/correo');
         $this->assertEquals(200, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for GET /notificacionmail/");
-        $crawler = $client->click($crawler->selectLink('Create a new entry')->link());
+        $crawler = $client->click($crawler->selectButton('Enviar')->link());
 
+        
         // Fill in the form and submit it
         $form = $crawler->selectButton('Create')->form(array(
-            'uci_boson_notificacionbundle_correo[field_name]'  => 'Test',
+            'notificacionbundle_notificacionmail[titulo]'  => 'Test Titulo',
+            'notificacionbundle_notificacionmail[contenido]'  => 'Test Contenido',
+            'notificacionbundle_notificacionmail[users][0]'  => 1,
             // ... other fields to fill
         ));
 
@@ -50,6 +53,4 @@ class CorreoControllerTest extends WebTestCase
         // Check the entity has been delete on the list
         $this->assertNotRegExp('/Foo/', $client->getResponse()->getContent());
     }
-
-    */
 }
