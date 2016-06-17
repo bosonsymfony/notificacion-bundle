@@ -46,13 +46,13 @@ class NotificationCorreoService
     /**
      * Crea y lanza una o notificación para un conjunto de roles o usuarios.
      * @param SendNotMail $entity
-     * @return bool
+     * @return  null|bool
      */
     public function sendNotification(SendNotMail $entity){
         /*llamo al registro de notificaciones en el repositorio*/
         $ResponsePersist = $this->manager->getRepository('NotificacionBundle:Correo')->persistFormNotification($entity);
         if(!is_array($ResponsePersist) || !array_key_exists('users',$ResponsePersist)){
-            return false;
+            return null;
         }
         $arrayNotifUsers = $ResponsePersist['users'];
 

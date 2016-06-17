@@ -183,7 +183,7 @@ angular.module('app')
                         update = true;
                         clean();
                     }
-                    toastr.success(response.data);
+                    response.type == 'success' ? toastr.success(response.data) : toastr.warning(response.data);
                 }
 
                 function clean() {
@@ -195,8 +195,11 @@ angular.module('app')
 
                 function error(errors) {
                     $scope.errors = errors.data;
+                    if(errors.status === 500){
+                        toastr.error(errors.data.data, errors.statusText, {timeOut: 2500});
+                    }
                     if (errors.status === 401) {
-                        toastr.error(errors.data, 'HOla', {timeOut: 2500});
+                        toastr.error(errors.data,  errors.statusText, {timeOut: 2500});
                     }
                 }
 

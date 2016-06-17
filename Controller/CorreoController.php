@@ -114,9 +114,16 @@ class CorreoController extends BackendController
             $autor = $this->getDoctrine()->getRepository('SeguridadBundle:Usuario')->find($secInfo['data']['userid']);
             $entity->setAutor($autor);
             $resp = $this->get('notificacion.correo')->sendNotification($entity);
-            if ($resp !== 0)
+            if ($resp === null){
+                return new Response(json_encode(array('data' =>  $this->get('translator')->trans('notificacion.notificacion_correo.create_fail'),'type'=>'error')), Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+            else if($resp === false){
+                return new Response(json_encode(array('data' => $this->get('translator')->trans('notificacion.notificacion_correo.send_fail'),'type'=>'warning')));
+            }
+            else{
                 return new Response(json_encode(array('data' => $this->get('translator')->trans('notificacion.notificacion_tr.create_success'),'type'=>'success')));
-            return new Response(json_encode(array('data' =>  $this->get('translator')->trans('notificacion.notificacion_correo.create_fail'),'type'=>'warning')), Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
         }
         $errors = $this->getAllErrorsMessages($form);
         return new Response($this->serialize($errors), Response::HTTP_INTERNAL_SERVER_ERROR);

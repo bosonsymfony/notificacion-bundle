@@ -16,3 +16,4 @@ notificacion:
         errorAuth: "Necesitas autenticarte primero."
     notificacion_correo:
         create_fail: 'No se realizó correctamente la operación.'
+        send_fail: 'El proceso de envío de la notificación falló. Se registró la notificación en la bandeja de entrada.'

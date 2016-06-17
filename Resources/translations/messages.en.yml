@@ -17,3 +17,4 @@ notificacion:
 
     notificacion_correo:
         create_fail: 'The creation of notification fail.'
+        send_fail: 'The send notification proccess fail, the notification was registred in the inbox.'
