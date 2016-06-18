@@ -1,4 +1,4 @@
-<md-dialog>
+<md-dialog style="width: 60%">
     <md-toolbar class="md-panel-toolbar">
         <div class="md-toolbar-tools">
             <h3>
@@ -40,52 +40,53 @@
                     </div>
                 </md-input-container>
             </div>
-
-            <div layout-gt-sm="row" class="md-block" flex-gt-sm>
-                <md-chips ng-model="selectedUsers" md-autocomplete-snap
-                          md-transform-chip="transformChip($chip)"
-                          md-require-match="autocompleteUserRequireMatch">
-                    <md-autocomplete
-                            ng-model="inputUsers"
-                            md-input-name="users"
-                            md-selected-item="selectedUserItem"
-                            md-search-text="searchUserText"
-                            md-items="item in queryUserSearch(searchUserText)"
-                            md-min-length="2"
-                            md-item-text="item.username"
-                            md-delay="500"
-                            placeholder="Search for a user">
-                        <span md-highlight-text="searchUserText">{{item.username}}</span>
-                    </md-autocomplete>
-                    <md-chip-template>
+            <div layout-gt-sm="row">
+                <div flex-gt-sm>
+                    <md-chips ng-model="selectedUsers" md-autocomplete-snap
+                              md-transform-chip="transformChip($chip)"
+                              md-require-match="autocompleteUserRequireMatch">
+                        <md-autocomplete
+                                ng-model="inputUsers"
+                                md-input-name="users"
+                                md-selected-item="selectedUserItem"
+                                md-search-text="searchUserText"
+                                md-items="item in queryUserSearch(searchUserText)"
+                                md-min-length="2"
+                                md-item-text="item.username"
+                                md-delay="500"
+                                placeholder="Search for a user">
+                            <span md-highlight-text="searchUserText">{{item.username}}</span>
+                        </md-autocomplete>
+                        <md-chip-template>
                         <span>
                           <strong>{{$chip.username}}</strong>
                         </span>
-                    </md-chip-template>
-                </md-chips>
-            </div>
-            <div layout-gt-sm="row" class="md-block" flex-gt-sm>
-                <md-chips ng-model="selectedRoles" md-autocomplete-snap
-                          md-transform-chip="transformRoleChip($chip)"
-                          md-require-match="autocompleteRoleRequireMatch">
-                    <md-autocomplete
-                            ng-model="inputRoles"
-                            md-input-name="roles"
-                            md-selected-item="selectedRoleItem"
-                            md-search-text="searchRoleText"
-                            md-items="item in queryRoleSearch(searchRoleText)"
-                            md-min-length="2"
-                            md-item-text="item.nombre"
-                            md-delay="500"
-                            placeholder="Search for a role">
-                        <span md-highlight-text="searchRoleText">{{item.nombre}}</span>
-                    </md-autocomplete>
-                    <md-chip-template>
+                        </md-chip-template>
+                    </md-chips>
+                </div>
+                <div flex-gt-sm>
+                    <md-chips ng-model="selectedRoles" md-autocomplete-snap
+                              md-transform-chip="transformRoleChip($chip)"
+                              md-require-match="autocompleteRoleRequireMatch">
+                        <md-autocomplete
+                                ng-model="inputRoles"
+                                md-input-name="roles"
+                                md-selected-item="selectedRoleItem"
+                                md-search-text="searchRoleText"
+                                md-items="item in queryRoleSearch(searchRoleText)"
+                                md-min-length="2"
+                                md-item-text="item.nombre"
+                                md-delay="500"
+                                placeholder="Search for a role">
+                            <span md-highlight-text="searchRoleText">{{item.nombre}}</span>
+                        </md-autocomplete>
+                        <md-chip-template>
                         <span>
                           <strong>{{$chip.nombre}}</strong>
                         </span>
-                    </md-chip-template>
-                </md-chips>
+                        </md-chip-template>
+                    </md-chips>
+                </div>
             </div>
             <div layout-gt-sm="row">
                 <input type="hidden" name="notificacionbundle_notificacion[_token]"
@@ -95,8 +96,14 @@
         </form>
     </md-dialog-content>
     <div class="md-actions">
-        <md-button class="md-primary md-raised" ng-disabled="!form.$valid || (selectedRoles.length === 0 && selectedUsers.length === 0)" ng-click="accept()">Aceptar</md-button>
-        <md-button class="md-raised" ng-disabled="!form.$valid || (selectedRoles.length === 0 && selectedUsers.length === 0)" ng-click="apply()">Aplicar</md-button>
+        <md-button class="md-primary md-raised"
+                   ng-disabled="!form.$valid || (selectedRoles.length === 0 && selectedUsers.length === 0)"
+                   ng-click="accept()">Aceptar
+        </md-button>
+        <md-button class="md-raised"
+                   ng-disabled="!form.$valid || (selectedRoles.length === 0 && selectedUsers.length === 0)"
+                   ng-click="apply()">Aplicar
+        </md-button>
         <md-button class="md-primary" ng-click="cancel()">Cancelar</md-button>
     </div>
 </md-dialog>
