@@ -29,9 +29,9 @@ class CorreoRepository extends \Doctrine\ORM\EntityRepository
             $notified_users = $this->getListUsersToNotify($object);
             $entity = $this->createEntity($object->getTitulo(), $object->getContenido(), $object->getAutor(), $object->getUsers(), $object->getAdjunto());
             $resp = $this->persistNotification($entity);
-            if (is_nan($resp) === true)
-                return $resp;
+        if (is_int($resp) === true)
             return array('users' => $notified_users['email'], 'id' => $resp);
+        return $resp;
     }
 
     public function getListUsersToNotify(SendNotMail $object)

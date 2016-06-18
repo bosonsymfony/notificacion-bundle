@@ -128,8 +128,8 @@ class NotificationCorreoService
     public function deleteAdjunto($id){
         $url = $this->container->getParameter('notification_store_attachments');
         $resp = false;
-        if(file_exists($url.DIRECTORY_SEPARATOR.$id)){
-           $resp =  unlink($url.DIRECTORY_SEPARATOR.$id);
+        if(file_exists($url.DIRECTORY_SEPARATOR.$id.'.zip')){
+           $resp =  unlink($url.DIRECTORY_SEPARATOR.$id.'.zip');
         }
         return $resp;
     }
