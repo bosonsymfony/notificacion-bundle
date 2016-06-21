@@ -84,7 +84,7 @@ class BandejaEntradaController extends BackendController
         $securityContext = $this->container->get('security.authorization_checker');
         if(!$securityContext->isGranted('IS_AUTHENTICATED_FULLY'))
         {
-            $respuesta = json_encode(array('data'=>array(),'count'=>0,'error'=> $this->get('translator')->trans('message.bandejaentrada.errorAuth')));
+            $respuesta = json_encode(array('data'=>array(),'count'=>0,'error'=> $this->get('translator')->trans('notificacion.bandejaentrada.errorAuth')));
         }
         else{
             $token =$this->get("security.token_storage")->getToken();
@@ -131,7 +131,7 @@ class BandejaEntradaController extends BackendController
         $em = $this->get('doctrine.orm.entity_manager');
         $entity = $em->getRepository('NotificacionBundle:Notificacion','notificacion')->find($id);
         if (!$entity) {
-            return new Response($this->get("translator")->trans("message.notificacion_tr.show_fail"), Response::HTTP_NOT_FOUND);
+            return new Response($this->get("translator")->trans("notificacion.notificacion_tr.show_fail"), Response::HTTP_NOT_FOUND);
         }
         try {
             $entity->setDeletedAt(new \DateTime());
