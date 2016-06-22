@@ -139,9 +139,9 @@ class BandejaEntradaController extends BackendController
             $em->flush($entity);
 
         } catch (\Exception $ex) {
-            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
+            return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_fail'),$id), 'type' => 'error')));
         }
-        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('message.notificacion_tr.delete_success'),$id), 'type' => 'success')));
+        return new Response(json_encode(array('data' => sprintf($this->get('translator')->trans('notificacion.notificacion_tr.delete_success'),$id), 'type' => 'success')));
     }
 
     /**
