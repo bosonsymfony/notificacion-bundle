@@ -1,25 +1,25 @@
-Componente: ExcepcionesBundle
+Componente: NotificacionBundle
 =============================
 
 
 1. Descripción general
 ----------------------
 
-    Está orientado a gestionar las excepciones locales de cada bundle.
+    Está orientado a gestionar las notificaciones en tiempo real y de correo electronico.
     Garantiza también el registro de todas las excepciones lanzadas en tiempo de ejecución en ficheros logs con un formato entendible para su posterior análisis.
 
 
 2. Instalación
 --------------
 
-    1. Copiar el componente dentro de la carpeta `vendor/boson/excepciones-bundle/UCI/Boson`.
+    1. Copiar el componente dentro de la carpeta `vendor/boson/notificacion-bundle/UCI/Boson`.
     2. Registrarlo en el archivo `app/autoload.php` de la siguiente forma:
 
        .. code-block:: php
 
            // ...
            $loader = require __DIR__ . '/../vendor/autoload.php';
-           $loader->add("UCI\\Boson\\ExcepcionesBundle", __DIR__ . '/../vendor/boson/excepciones-bundle');
+           $loader->add("UCI\\Boson\\NotificacionBundle", __DIR__ . '/../vendor/boson/notificacion-bundle');
            // ...
 
     3. Activarlo en el kernel de la siguiente manera:
@@ -31,17 +31,17 @@ Componente: ExcepcionesBundle
            {
                return array(
                    // ...
-                   new UCI\Boson\ExcepcionesBundle\ExcepcionesBundle(),
+                   new UCI\Boson\NotificacionBundle\NotificacionBundle(),
                    // ...
                );
            }
 
     4. Luego debes modificar la Clase DependencyInjection\[Nombredetubundle]Extension.php específicamente el método **load**
-       para que cargue las excepciones de tu bundle:
+       para que cargue las notificaciones de tu bundle:
 
 	   .. code-block:: php
 
-	   	   //clase AcmeExtension, método load
+	   	   //clase NotificacionExtension, método load
 		   public function load()
 		   {
 		       // ...
@@ -51,6 +51,46 @@ Componente: ExcepcionesBundle
 			   $ExcpExtension->loadFileExcepciones($container);
 		   }
 
+2.1 Configuración
+-----------------
+Para enviar notificaciones en tiempo real es necesario
+	1. Incluir la librería cliente de socket.io.
+
+	      <script src="{{ asset('bundles/notificacion/node_modules/socket.io-client/socket.io.js') }}"></script>
+          <script src="{{ asset('bundles/notificacion/node_modules/angular-toastr/dist/angular-toastr.tpls.min.js') }}"></script>
+          <script>
+             var socket = io.connect('http://10.58.10.152:3000');
+          </script>
+	2. Cargar la librería.
+	3. Conectar el socket. Aquí se muestra un ejemplo de cómo incluir y registrar los sockets desde un controlador de AngularJs.
+
+	function getToken(){
+        $http.get($scope.urlServer+"/notificaciones/security-token").success(function (data) {
+            socket.emit('newClient', {"security": data });
+        });
+    }
+    getToken();
+
+    socket.on('notification', function (data) {
+        toastr.info(data)
+    });
+    socket.on('errorConnection', function (data) {
+        toastr.error(data)
+    });
+    4. Obtener la información qué está pública.
+    5. Enviarla (emitir un socket con esa información).
+
+Ejemplo de como incluir y registrar los sockets con jquery.
+
+	socket.emit('newClient', {"security": data });
+
+    socket.on('notification', function (data) {
+        toastr.info(data)
+    });
+    socket.on('errorConnection', function (data) {
+        toastr.error(data)
+    });
+
 3. Especificación funcional
 ---------------------------
 
@@ -58,138 +98,86 @@ Componente: ExcepcionesBundle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-3.1.1. Configuración y registro de las distintas excepciones que pueden ocurrir en cada acción de las clases control que se implementan.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-	Los ficheros de configuración deben encontrarse en la dirección MyBundle/Resources/config/ y 		deben tener el 		nombre excepciones.yml o excepciones.xml según el tipo de 		configuración que se desee.
-	Si el tipo de fichero es de tipo YAML el fichero debe estar configurado de la siguiente forma:
-
-	.. code-block:: php
-
-	    excepciones:
-	        .....
-
-	Si el tipo de fichero es de tipo XML el fichero debe estar configurado de la siguiente forma:
-
-	.. code-block:: xml
-
-	    <?xml version="1.0" encoding="UTF-8"?>
-		<excepciones>
-        			....
-		</excepciones>
+3.1.1. Enviar notificación a rol.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de permitir el envío de notificaciones a un rol determinado.
+   	Cuando se envía una notificación a un rol todos los usuarios que tengan asignado dicho rol recibirán esta notificación en su bandeja de notificaciones.
+   	Este requisito se encarga de permitir el envío de notificaciones a un rol determinado.
 
 
-3.1.2. Configuración y registro de los datos de las excepciones que se adicionan.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3.1.2. Enviar notificación a usuario.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de permitir el envío de notificaciones a un usuario determinado.
+   	Cuando se envía una notificación a un usuario este podrá ver los detalles de la misma esta en su bandeja de notificaciones.
 
-	Las excepciones registradas en los ficheros de configuración deben poseer un código que debe ser la identificación de la 			excepción. Además del código debe especificarse un mensaje y una descripción.
+3.1.3. Enviar notificación por correo electrónico a usuario.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  	Este requisito se encarga de permitir el envío de notificaciones por correo electrónico a un usuario independientemente del rol al que se encuentre asociado.
 
-	Si el tipo de fichero es de tipo YAML  un ejemplo de excepción  con código E1 debería quedar de la siguiente forma:
+3.1.4. Enviar notificación por correo electrónico a rol.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   	Este requisito se encarga de permitir el envío de notificaciones por correo electrónico a un rol.
 
-	.. code-block:: php
+3.1.5. Brindar servicio de notificacion a sistema externo.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   	Este requisito se encarga de brindar servicios para notificar desde sistemas externos.
 
-	    excepciones:
-		    E1:
-		        mensaje: excepciones.E605.mensaje
-		        descripcion: este es la descripción
-
-	Si el tipo de fichero es de tipo XML el fichero debe estar configurado de la siguiente forma:
-
-	.. code-block:: xml
-
-	    <?xml version="1.0" encoding="UTF-8"?>
-		<excepciones>
-        	<E1>
-		        <mensaje>
-		            acmejuju.excepciones.E1.mensaje
-		        </mensaje>
-		        <descripcion>
-		            Descripción de la excepción de ejemplo.
-		        </descripcion>
-		    </E1>
-		</excepciones>
-
-3.1.3. Realizar el tratamiento de excepciones.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-    Las excepciones se tratan siguiendo los métodos convencionales del lenguaje php, para el lanzamiento de las excepciones locales configuradas en su componente, se debe agregar el código de la excepción configurada en el archivo excepciones.*, como segundo parámetro opcionalmente puede ser pasado  una excepción previamente capturada y que sea de interés para el programa, siguiendo la misma lógica definida para todas las excepciones de php.
-
-		.. code-block:: php
-
-		    throw new LocalException("E1") //para lanzarlas
-
-
-    El componente cuenta con la personalización de las vistas de errores para el entorno de producción, usted puede alterar los mismos o crear nuevos siempre que especifique una plantilla con el nombre 'error'+código.html.twig en la carpeta Resources/views/Exception/.
-    Siéntase libre de modificar y personalizar estas plantillas a su gusto (ver libro **The Cookbook of Symfony2.3** para mayor información).
-    Para el uso de las plantillas se especifica en app/config/parameters_boson.yml el parámetro **excepciones.email_admin_contact** el cual debe indicar la dirección de correo del administrador como contacto para los errores.
-
-3.1.4. Obtener el identificador o código de la excepción.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	El identificador o código de toda excepción de tipo **LocalException** puede ser obtenido mediante el 	método getCodigo()  o mediante el método nativo de las excepciones genéricas de php getCode().
-
-3.1.5. Obtener la excepción interna que ocurrió.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	La excepción interna de toda excepción de tipo **LocalException** puede ser obtenido mediante el método getInterna()  o mediante el método nativo de las excepciones genéricas de php getPrevious().
-
-3.1.6. Obtener la descripción de la excepción.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+3.1.6. Alertar a usuarios conectados de notificaciones en tiempo real.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga, luego de enviar una notificación a un usuario en específico, alertarlo de la existencia de notificaciones.
+	Para poder consultar con detalles la notificación enviada accederá a su bandeja de notificaciones.
 	La descripción de toda excepción de tipo **LocalException** puede ser obtenida mediante el método getDescripcion().
 
-3.1.7. Obtener la clase que lanzó la excepción.
+3.1.7. Buscar notificación de usuario.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de buscar una notificación de usuario de las existentes en el sistema.
+	Al insertar los criterios de búsqueda establecidos por el usuario el sistema mostrará un listado de aquellas notificaciones que cumplen con el criterio especificado.
+
+3.1.8. Eliminar notificación de usuario.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de eliminar notificaciones pertenecientes a un usuario de su bandeja de notificaciones.
+
+3.1.9. Listar notificación de usuario.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de listar todas las notificaciones de un usuario en su bandeja de notificaciones.
+
+3.1.10. Mostrar detalles de notificación de usuario.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de mostrar los detalles de las notificaciones.
+	Cuando se le envía una notificación a un usuario, estas se podrán consultar en la bandeja de notificaciones.
+
+3.1.11. Buscar notificación de administrador.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de buscar una notificación perteneciente al administrador de las existentes en el sistema.
+	Al insertar los criterios de búsqueda establecidos por el administrador el sistema mostrará un listado de aquellas notificaciones que cumplen con el criterio especificado.
+
+3.1.12. Eliminar notificación de administrador.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	La clase de toda excepción de tipo **LocalException** puede ser obtenido mediante el método getClase() o mediante el método nativo de las excepciones genéricas de php getFile().
+	Este requisito se encarga de eliminar notificaciones de la bandeja de notificaciones del administrador.
 
-3.1.8. Obtener la acción de la clase que disparó la excepción.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	La acción de la clase de toda excepción de tipo **LocalException** puede ser obtenido mediante el método getMetodo().
+3.1.13. Listar notificación de administrador.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de listar todas las notificaciones del administrador en su bandeja de notificaciones.
 
-3.1.9. Obtener el bundle en el que ocurrió la excepción.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	El nombre del bundle en el que ocurrió la excepción de toda excepción de tipo **LocalException** puede ser obtenido mediante el método getBundleName().
-
-3.1.10. Obtener el mensaje de la excepción.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	El mensaje de la excepción que ocurrió de toda excepción de tipo **LocalException** puede ser obtenido mediante el método getMensaje() o mediante el método nativo de las excepciones genéricas de php getMessage().
-
-3.1.11. Salvar y mostrar los datos de la excepción.
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	El bundle registra todas las excepciones lanzadas, ya sea las te tipo LocalExcepcion como cualquier otra excepción lanzada durante el tiempo de ejecución de la aplicación.
-	Las excepciones son registradas en el fichero excepciones.log que puede ser encontrado en  app/logs. Por cada excepción lanzada se registran en un formato entendible los principales datos de la misma asi como la fecha y hora en que fue lanzada. Este registro se realiza valiéndose del bundle monolog.
-
-3.1.12. Personalizar comando de generar bundles
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	El bundle brinda el comando boson:generate:bundle el cual es una modificación del generate:bundle de sensio. Este comando permite generar un nuevo bundle con la estructura de carpetas y ficheros necesarios para empezar la implementación y uso de las excepciones locales sin necesidad de incluir.
+3.1.14. Mostrar detalles de notificación de administrador.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Este requisito se encarga de mostrar los detalles de las notificaciones en la bandeja de entrada del administrador.
 
 3.2. Requisitos no funcionales
 ------------------------------
-	La **internacionalización**  de los mensajes y las descripciones de las excepciones pueden ser configuradas con facilidad. Basta con sustituir el texto de estos por el código necesario para acceder a los mensajes descritos en los ficheros de internacionalización ubicados en el bundle en Resources/translations/translatesexcepciones.[código del idioma].[yml o xrtf], un ejemplo pudiera ser el siguiente:
-		.. code-block:: php
-
-		    # fichero ../Resources/config/excepciones.yml
-	    	    excepciones:
-                  E605:
-			          mensaje: excepciones.E605.mensaje
-			          descripcion: este es la descripción
-			          ..........
-
-		.. code-block:: php
-
-		    # fichero ../Resources/translations/translatesexcepciones.es.yml
-	    	    excepciones:
-		        E1:
-		            mensaje: excepciones.E1.mensaje
-		            descripcion: este es la descripción
-
 
 4. Servicios que brinda
 -----------------------
+	* notifyByUser de la clase NotificationTRService recibe los parámetros $titulo, $contenido y $user. Se encarga de notificar a un usuario en tiempo real.
+	* notifyByUser de la clase NotificationCorreoService recibe los parámetros $titulo, $contenido, $usuarios y $adjunto. Se encarga de notificar a un usuario por 		correo electrónico.
 
 
 5. Servicios de los que depende
 -------------------------------
-	Listado de servicios que constituyen dependencias del bundle:
-
-    - translator
+	* 'security.token_storage'. Se encarga de obtener el token de seguridad con los datos de los usuarios conectados.
+	* 'mailer'. Servicio para el envío de correos electrónicos por smtp.
+	* 'doctrine'. Se encarga de obtener el manejador de doctrine para la persistencia de datos.
+	* 'logger' Se encarga de registrar logs si ocurren fallos en el envío de datos.
 
 6. Eventos generados
 --------------------
@@ -206,10 +194,25 @@ Componente: ExcepcionesBundle
 
 8. Otros detalles claves
 ------------------------
+	1. Para el envío de notificaciones de correo electrónico la PC debe tener el certificado UCICA.
+	   Los sistemas basados en UBUNTU deben:
+		*Guardar en usr/share/ca_certificates con otro nombre (UCICA.crt) el certificado.
+		*Activar con el comando  dpkg_reconfigure ca_certificates.
+		*Seleccionar el certificado y agregarlo.
 
-Aqui se debe esplicar que se utilizan los sertificados del sistema para el envio por lo que el sistema debe tener
-configurado el .cert del correo
+	2. Verificar la configuración del componente BackandBundle.
+		*boson/backend-bundle
 
+	3. Configuraciones
+		*En el fichero de configuración conf.yml se debe configurar los siguientes parámetros:
+		  mailer_encryption: tls
+		  mailer_port: 25
+     	  mailer_auth_mode: login
+
+		*En el fichero  de configuración parameters.yml se debe copiar los siguientes parámetros:
+		  encryption:  "%mailer_encryption%"
+	      port:  "%mailer_port%"
+          auth_mode:  "%mailer_auth_mode%"
 ---------------------------------------------
 
 :Versión: 1.0 17/7/2015
@@ -225,39 +228,3 @@ Licencia
 
 
 
-dasdadsadsa
-___________
-
-
- Cargar la libreria cliente de socket.io
-    <script src="{{ asset('bundles/notificacion/node_modules/socket.io-client/socket.io.js') }}"></script>
-    <script src="{{ asset('bundles/notificacion/node_modules/angular-toastr/dist/angular-toastr.tpls.min.js') }}"></script>
-    <script>
-        var socket = io.connect('http://10.58.10.152:3000');
-    </script>
-
-    Esto es un ejemplo de como incluir y registrar los sockets desde un controlador de angularjs
-    function getToken(){
-        $http.get($scope.urlServer+"/notificaciones/security-token").success(function (data) {
-            socket.emit('newClient', {"security": data });
-        });
-    }
-    getToken();
-
-    socket.on('notification', function (data) {
-        toastr.info(data)
-    });
-    socket.on('errorConnection', function (data) {
-        toastr.error(data)
-    });
-
-    Aqui debes incuir un ejemplo de como hacerlo con jquery al final es hacer una petición a la ruta "/notificaciones/security-token"
-    y hacer lo mismo:
-    socket.emit('newClient', {"security": data });
-
-    socket.on('notification', function (data) {
-        toastr.info(data)
-    });
-    socket.on('errorConnection', function (data) {
-        toastr.error(data)
-    });
