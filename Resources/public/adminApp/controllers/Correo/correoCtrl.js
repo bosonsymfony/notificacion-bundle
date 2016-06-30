@@ -199,7 +199,7 @@ angular.module('app')
                         toastr.error(errors.data.data, errors.statusText, {timeOut: 2500});
                     }
                     if (errors.status === 401) {
-                        toastr.error(errors.data,  errors.statusText, {timeOut: 2500});
+                        toastr.error(errors.data, 'No autorizado', {timeOut: 2500});
                     }
                 }
 

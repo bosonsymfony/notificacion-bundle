@@ -161,6 +161,7 @@ angular.module('app')
                     }
                 };
                 function success(response) {
+                    console.log(response)
                     if (hide) {
                         $mdDialog.hide();
                     } else {
@@ -175,9 +176,12 @@ angular.module('app')
                     $scope.selectedRoles = [];
                 }
                 function error(errors) {
+                    console.log(errors);
                     $scope.errors = errors.data;
                     if (errors.status === 401) {
-                        toastr.error(errors.data, 'HOla', {timeOut: 2500});
+                        toastr.error(errors.data, 'No autorizado', {timeOut: 2500});
+                    }else if (errors.status === 400) {
+                        toastr.warning(errors.data.data, 'Petición incorrecta', {timeOut: 2500});
                     }
                 }
                 function addEntity() {

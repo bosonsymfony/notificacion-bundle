@@ -1,12 +1,12 @@
 notificacion:
-    get404: The recurso notificación con el id especificado no fué encontrado
-    get403: he recurso notificación con el  %s está prohibido
-    post401: Necesitas autenticarte primero
+    get404: "The recurso notificación con el id especificado no fué encontrado."
+    get403: "EL recurso notificación con el identificador %s está prohibido."
+    post401: "Necesitas autenticarte primero."
 
     notificacion_tr:
         create_fail: "No fue posible notificar,la notificación se registró en la bandeja de entrada."
         create_fail_0_users_notif: "No se registraron notificaciones con los datos provistos."
-        create_success: 'La notificación se registró satisfactoriamente.'
+        create_success: 'La notificación se envió satisfactoriamente.'
         show_fail: 'No existe ninguna notificación con este identificador.'
         delete_success: "La notificación %d fue eliminada satisfactoriamente."
         delete_fail: "La notificación %d no fue eliminada."
