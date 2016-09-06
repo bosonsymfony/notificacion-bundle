@@ -185,16 +185,16 @@ Para recibir notificaciones en tiempo real es necesario:
 
 4. Servicios que brinda
 -----------------------
-	* notifyByUser de la clase NotificationTRService recibe los parámetros $titulo, $contenido y $user. Se encarga de notificar a un usuario en tiempo real.
-	* notifyByUser de la clase NotificationCorreoService recibe los parámetros $titulo, $contenido, $usuarios y $adjunto. Se encarga de notificar a un usuario por correo electrónico.
+	-  notifyByUser de la clase NotificationTRService recibe los parámetros $titulo, $contenido y $user. Se encarga de notificar a un usuario en tiempo real.
+	-  notifyByUser de la clase NotificationCorreoService recibe los parámetros $titulo, $contenido, $usuarios y $adjunto. Se encarga de notificar a un usuario por correo electrónico.
 
 
 5. Servicios de los que depende
 -------------------------------
-	* 'security.token_storage'. Se encarga de obtener el token de seguridad con los datos de los usuarios conectados.
-	* 'mailer'. Servicio para el envío de correos electrónicos por smtp.
-	* 'doctrine'. Se encarga de obtener el manejador de doctrine para la persistencia de datos.
-	* 'logger' Se encarga de registrar logs si ocurren fallos en el envío de datos.
+	- 'security.token_storage'. Se encarga de obtener el token de seguridad con los datos de los usuarios conectados.
+	- 'mailer'. Servicio para el envío de correos electrónicos por smtp.
+	- 'doctrine'. Se encarga de obtener el manejador de doctrine para la persistencia de datos.
+	- 'logger' Se encarga de registrar logs si ocurren fallos en el envío de datos.
 
 6. Otros detalles claves
 ------------------------
