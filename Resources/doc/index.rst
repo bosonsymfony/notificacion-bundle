@@ -1,5 +1,5 @@
 Componente: NotificacionBundle
-=============================
+==============================
 
 
 1. Descripción general
