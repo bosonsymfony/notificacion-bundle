@@ -61,14 +61,15 @@ Para recibir notificaciones en tiempo real es necesario:
 	1. Incluir la librería cliente de socket.io.
 
 	      .. code-block:: php
-
+                  <link href="{{ asset('bundles/notificacion/node_modules/angular-toastr/dist/angular-toastr.min.css') }}" rel="stylesheet">
+                  
 	          <script src="{{ asset('bundles/notificacion/node_modules/socket.io-client/socket.io.js') }}"></script>
-              <script src="{{ asset('bundles/notificacion/node_modules/angular-toastr/dist/angular-toastr.tpls.min.js') }}"></script>
+                  <script src="{{ asset('bundles/notificacion/node_modules/angular-toastr/dist/angular-toastr.tpls.min.js') }}"></script>
 
 	2. Abrir la conexión con el componente Notifier.
 
 	      .. code-block:: php
-
+		 
 	          <script>
                  var socket = io.connect('http://notifier.local.cu:3000');
               </script>
@@ -84,7 +85,8 @@ Para recibir notificaciones en tiempo real es necesario:
 	          getToken();
 
 	          socket.on('notification', function (data) {
-	          	  toastr.info(data)
+	              var notifData = JSON.parse(data);
+                      toastr.info(notifData.message,notifData.title);
 	          });
 	          socket.on('errorConnection', function (data) {
 	              toastr.error(data)
