@@ -50,7 +50,7 @@ Componente: NotificacionBundle
 
        Como se puede observar, es necesario definir dos parámetros. El primero es obligatorio y define la ruta donde el componente notificer espera
        recibir la peticiones POST con los datos de las notificaciones, para los usurios en línea. Por defecto este componente espera estas peticiones
-       en la dirección 'http://ip/de/la/pc:300/notification'.
+       en la dirección 'http://ip.de.la.pc:3000/notification'.
        El parámetro store_attachments especifica la ruta física en el servidor de aplicación donde se require almacenar los adjuntos de las notificaciones de
        correos electrónicos envidos.
 
@@ -200,12 +200,12 @@ Para recibir notificaciones en tiempo real es necesario:
 
 6. Otros detalles claves
 ------------------------
-	1. Para el envío de notificaciones de correo electrónico la PC debe tener el certificado UCICA.Los sistemas basados en UBUNTU deben:
+	1. Para el envío de notificaciones de correo electrónico la PC debe tener el certificado UCICA. Los sistemas basados en UBUNTU deben:
 		- Guardar en /usr/share/ca-certificates con nombre 'UCICA.crt'.
 		- Activar con el comando  dpkg_reconfigure ca_certificates.
 		- Seleccionar el certificado y agregarlo.
 
-	2. Verificar la configuración del componente BackandBundle.
+	2. Verificar la configuración del componente BackendBundle.
 		- boson/backend-bundle
 
 	3. Configuraciones
