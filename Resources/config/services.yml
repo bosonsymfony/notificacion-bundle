@@ -1,12 +1,12 @@
 services:
     notificacion.notification:
         class: UCI\Boson\NotificacionBundle\Services\NotificationService
-        arguments: [@service_container]
+        arguments: ["@service_container"]
     notificacion.tiemporeal:
         class: UCI\Boson\NotificacionBundle\Services\NotificationTRService
-        arguments: [@service_container]
+        arguments: ["@service_container"]
     notificacion.correo:
         class: UCI\Boson\NotificacionBundle\Services\NotificationCorreoService
-        arguments: [@service_container,%notification_store_attachments%]
+        arguments: ["@service_container","%notification_store_attachments%"]
         # aqui se pasa el container temporalmente pero en la clase se debe definir como atributos los ser
         #vicios reales a utilizar.
