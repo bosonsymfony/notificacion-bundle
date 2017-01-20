@@ -63,6 +63,9 @@
                         </span>
                         </md-chip-template>
                     </md-chips>
+                    <div ng-show="!userFound" style="border-top: 2px solid red">
+                        <label style="color: red"> No existen coincidencias para este texto</label>
+                    </div>
                 </div>
                 <div flex-gt-sm>
                     <md-chips ng-model="selectedRoles" md-autocomplete-snap
@@ -86,6 +89,9 @@
                         </span>
                         </md-chip-template>
                     </md-chips>
+                    <div ng-show="!rolesFound" style="border-top: 2px solid red">
+                        <label style="color: red"> No existen coincidencias para este texto</label>
+                    </div>
                 </div>
             </div>
             <div layout-gt-sm="row">

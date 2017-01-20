@@ -220,6 +220,9 @@ angular.module('app')
                 $scope.numberBuffer = '';
                 $scope.autocompleteUserRequireMatch = true;
                 $scope.transformChip = transformChip;
+                
+                $scope.userFound = true;
+                $scope.rolesFound = true;
                 /**
                  * Return the proper object when the append is called.
                  */
@@ -238,6 +241,11 @@ angular.module('app')
                 function queryUserSearch(query) {
                     return tiempoRealSvc.users(query)
                         .then(function (data) {
+                            if (data.data.length == 0){
+                                $scope.userFound = false;
+                            }else{
+                                $scope.userFound = true;
+                            }
                             return data.data.map(function (user) {
                                 user._lowerusername = user.username.toLowerCase();
                                 user.email = user.email.toLowerCase();
@@ -280,6 +288,11 @@ angular.module('app')
                 function queryRoleSearch(query) {
                     return tiempoRealSvc.roles(query)
                         .then(function (data) {
+                            if (data.data.length == 0){
+                                $scope.rolesFound = false;
+                            }else{
+                                $scope.rolesFound = true;
+                            }
                             return data.data.map(function (role) {
                                 role._lowernombre = role.nombre.toLowerCase();
                                 role._lowerid = role.id;
