@@ -94,7 +94,7 @@ class NotificacionController extends BackendController
             $qb->setFirstResult($page * $limit);
         }
         if ($filter) {
-            $qb->where("usuario.username LIKE '%$filter%'");
+            $qb->where("LOWER(usuario.username) LIKE LOWER('%$filter%')");
         }
         $qb->setMaxResults($limit);
 
@@ -121,7 +121,7 @@ class NotificacionController extends BackendController
             $qb->setFirstResult($page * $limit);
         }
         if ($filter) {
-            $qb->where("rol.nombre LIKE '%$filter%'");
+            $qb->where("LOWER(rol.nombre) LIKE  LOWER('%$filter%')");
         }
         $qb->setMaxResults($limit);
 
