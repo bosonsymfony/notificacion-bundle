@@ -2,7 +2,7 @@
     "name": "boson/notificacion-bundle",
     "license": "MIT",
     "type": "symfony-bundle",
-    "description": "Paquete de notificaciones de Boson",
+    "description": "Paquete de notificaciones | Notification package over email and websockets",
     "authors": [
         {
             "name": "Daniel Arturo Casals Amat",
@@ -19,18 +19,16 @@
     "target-dir": "UCI/Boson/NotificacionBundle",
     "require": {
         "php": ">=5.4",
-        "symfony/symfony": "~2.7.0"
+        "symfony/symfony": "^2.7.0"
     },
     "minimum-stability": "dev",
     "require-dev": {
         "php": ">=5.4",
-        "symfony/symfony": "~2.7.0"
+        "symfony/symfony": "^2.7.0"
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "master-dev",
-            "dev-b2.3":   "1.0.x-dev",
-            "dev-b2.7":   "1.1.x-dev"
+            "dev-master": "master-dev"
         }
     }
 }
